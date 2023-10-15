@@ -1,4 +1,6 @@
-import React from 'react';
+import React, {
+  useEffect,
+} from 'react';
 
 import { useSelector } from 'react-redux';
 
@@ -17,8 +19,18 @@ import {
 
 import { selectBot } from '../../../features/bot/botSlice';
 
+import { AI } from '../../../bot/index.ts';
+
 const Bot = ({ id }) => {
   const bot = useSelector(selectBot(id));
+
+  useEffect(() => {
+    // just check working of typescript and prepare for InversifyJS DI
+    // currently, we have no idea to setup concept for bot, socket connection, match... with DI inside each Bot component instance :((
+    const ai = new AI();
+    ai.calculate();
+  }, []);
+
   const {
     game,
     host: {
