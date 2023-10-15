@@ -10,11 +10,11 @@ const initialState = {
   }],
   players: [{
     id: "player-1",
-    key: "player1-xxx-xxx-xxx",
+    key: "player1-xxx",
     name: "player 1",
   }, {
     id: "player-2",
-    key: "player2-xxx-xxx-xxx",
+    key: "player2-xxx",
     name: "player 2",
   }],
 };

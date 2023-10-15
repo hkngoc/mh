@@ -1,4 +1,6 @@
-import React from 'react';
+import React, {
+  useState,
+} from 'react';
 
 import {
   Routes,
@@ -10,16 +12,22 @@ import {
   Container,
   Nav,
   Navbar,
+  Button,
 } from 'react-bootstrap';
 
 import { Link } from 'react-router-dom';
 
+import { Robot } from 'react-bootstrap-icons';
+
 import Home from './pages/Home';
 import Setting from './pages/Setting';
+import AddBot from './pages/AddBot';
 
 import Counter from './pages/Counter';
 
 const App = () => {
+  const [show, setShow] = useState(false);
+
   return (
     <Router basename="/">
       <Navbar
@@ -49,6 +57,12 @@ const App = () => {
                 </Link>
               </div>
             </Nav>
+            <Button
+              variant="outline-success"
+              onClick={() => setShow(true)}
+            >
+              <Robot />
+            </Button>
           </Navbar.Collapse>
         </Container>
       </Navbar>
@@ -59,6 +73,10 @@ const App = () => {
           <Route path="/counter" Component={Counter} />
         </Routes>
       </Container>
+      <AddBot
+        show={show}
+        onHide={() => setShow(false)}
+      />
     </Router>
   );
 };

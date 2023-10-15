@@ -16,6 +16,7 @@ import autoMergeLevel2 from 'reduxjs-toolkit-persist/lib/stateReconciler/autoMer
 
 import counterReducer from '../features/counter/counterSlice';
 import settingReducer from '../features/setting/settingSlice';
+import botReducer from '../features/bot/botSlice';
 
 const storage = createIdbStorage({ name: "mh", storeName: "setting" });
 
@@ -34,6 +35,13 @@ export const store = configureStore({
     setting: persistReducer(
       persistConfig,
       settingReducer,
+    ),
+    bot: persistReducer(
+      {
+        ...persistConfig,
+        key: "bot",
+      },
+      botReducer,
     ),
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
