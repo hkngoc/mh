@@ -51,11 +51,6 @@ const App = () => {
                   Setting
                 </Link>
               </div>
-              <div className="nav-link" role="button">
-                <Link className="text-decoration-none text-white" to="/counter">
-                  Counter
-                </Link>
-              </div>
             </Nav>
             <Button
               variant="outline-success"

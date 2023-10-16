@@ -52,10 +52,12 @@ const AddBot = ({ onHide, ...rest }) => {
     }));
 
     onHide?.();
+    reset();
   }, [
     hosts,
     players,
     dispatch,
+    reset,
     onHide,
   ]);
 
@@ -63,6 +65,7 @@ const AddBot = ({ onHide, ...rest }) => {
     <Modal
       {...rest}
       onHide={handleHide}
+      centered={true}
     >
       <Modal.Header>
         <Modal.Title>
