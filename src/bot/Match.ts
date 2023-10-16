@@ -2,7 +2,7 @@ import { Manager, Socket } from 'socket.io-client';
 
 const EV_JOIN_GAME = 'join game';
 
-export class Match {
+class Match {
   private host: string;
   private game: string;
   private player: string;
@@ -57,3 +57,5 @@ export class Match {
     this.socket.disconnect();
   }
 };
+
+export default Match;

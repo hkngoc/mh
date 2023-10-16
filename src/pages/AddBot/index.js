@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useMemo,
 } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -16,6 +17,7 @@ import { selectSetting } from '../../features/setting/settingSlice';
 
 import {
  addBot,
+ selectBots,
 } from '../../features/bot/botSlice';
 
 const AddBot = ({ onHide, ...rest }) => {
@@ -24,11 +26,18 @@ const AddBot = ({ onHide, ...rest }) => {
     players,
   } = useSelector(selectSetting);
 
+  const bots = useSelector(selectBots);
+
   const {
     register,
     handleSubmit,
     reset,
-  } = useForm();
+    watch,
+  } = useForm({
+    defaultValues: {
+      player: players.length > 0 ? players[0].id : null,
+    }
+  });
 
   const dispatch = useDispatch();
 
@@ -59,6 +68,20 @@ const AddBot = ({ onHide, ...rest }) => {
     dispatch,
     reset,
     onHide,
+  ]);
+
+  const [game, player] = watch(["game", "player"]);
+
+  const playerExist = useMemo(() => {
+    if (!game || !player) {
+      return false;
+    }
+
+    return bots.find((b) => b.game === game && b.player.id === player) != null;
+  }, [
+    bots,
+    game,
+    player,
   ]);
 
   return (
@@ -109,7 +132,7 @@ const AddBot = ({ onHide, ...rest }) => {
           </Form.Group>
           <Modal.Footer>
             <Button onClick={handleHide} type="reset" variant="secondary">Cancel</Button>
-            <Button type="submit">Add</Button>
+            <Button type="submit" disabled={playerExist}>Add</Button>
           </Modal.Footer>
         </Form>
       </Modal.Body>
