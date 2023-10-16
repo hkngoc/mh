@@ -5,7 +5,8 @@ import React, {
 import {
   Routes,
   Route,
-  BrowserRouter as Router,
+  // BrowserRouter as Router,
+  HashRouter as Router,
 } from 'react-router-dom';
 
 import {
@@ -63,9 +64,10 @@ const App = () => {
       </Navbar>
       <Container className="my-3">
         <Routes>
-          <Route path="/" Component={Home} />
           <Route path="/setting" Component={Setting} />
           <Route path="/counter" Component={Counter} />
+
+          <Route path="/" Component={Home} />
         </Routes>
       </Container>
       <AddBot
