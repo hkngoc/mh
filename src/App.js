@@ -14,11 +14,12 @@ import {
   Nav,
   Navbar,
   Button,
+  Modal,
 } from 'react-bootstrap';
 
 import { Link } from 'react-router-dom';
 
-import { Robot } from 'react-bootstrap-icons';
+import { Gear, Robot } from 'react-bootstrap-icons';
 
 import Home from './pages/Home';
 import Setting from './pages/Setting';
@@ -27,7 +28,8 @@ import AddBot from './pages/AddBot';
 import Counter from './pages/Counter';
 
 const App = () => {
-  const [show, setShow] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [showSetting, setShowSetting] = useState(false);
 
   return (
     <Router basename="/">
@@ -47,18 +49,22 @@ const App = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <div className="nav-link" role="button">
-                <Link className="text-decoration-none text-white" to="/setting">
-                  Setting
-                </Link>
-              </div>
             </Nav>
-            <Button
-              variant="outline-success"
-              onClick={() => setShow(true)}
-            >
-              <Robot />
-            </Button>
+            <Nav className="gap-2 align-items-start">
+              <Button
+                variant="outline-success"
+                onClick={() => setShowAdd(true)}
+              >
+                <Robot />
+              </Button>
+              <Button
+                variant="outline-secondary"
+                onClick={() => setShowSetting(true)}
+              >
+                <Gear />
+              </Button>
+
+            </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
@@ -71,9 +77,24 @@ const App = () => {
         </Routes>
       </Container>
       <AddBot
-        show={show}
-        onHide={() => setShow(false)}
+        show={showAdd}
+        onHide={() => setShowAdd(false)}
       />
+      <Modal
+        show={showSetting}
+        onHide={() => setShowSetting(false)}
+        size="lg"
+        scrollable={true}
+      >
+        <Modal.Header>
+          <Modal.Title>
+            Setting
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ minHeight: "20rem" }}>
+          <Setting />
+        </Modal.Body>
+      </Modal>
     </Router>
   );
 };

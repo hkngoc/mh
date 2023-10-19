@@ -1,10 +1,9 @@
 import React from 'react';
-
 import { useSelector } from 'react-redux';
 
 import {
   selectBots,
-} from '../../features/bot/botSlice';
+} from 'src/features/bot/botSlice';
 
 import Bot from './Bot';
 

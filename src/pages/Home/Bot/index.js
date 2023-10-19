@@ -23,6 +23,8 @@ import { selectBot, removeBot } from '../../../features/bot/botSlice';
 
 import { Match } from '../../../bot';
 
+import Broadcast from '../Broadcast';
+
 const Bot = ({ id }) => {
   const [match, setMatch] = useState(null);
   const [joined, setJoined] = useState(false);
@@ -47,16 +49,22 @@ const Bot = ({ id }) => {
     const match = new Match(host, game, key);
     setMatch(match);
 
-    return () => {
-      if (match) {
-        match.dispose();
-      }
-    };
+    // return () => {
+    //   if (match) {
+    //     match.dispose();
+    //   }
+    // };
   }, [
     host,
     game,
     key,
   ]);
+
+  useEffect(() => {
+    return () => {
+      match?.dispose();
+    }
+  }, [match]);
 
   const onConnected = useCallback(({ game_id, player_id }) => {
     if (game_id === game && player_id === key) {
@@ -109,49 +117,57 @@ const Bot = ({ id }) => {
   ]);
 
   return (
-    <Card>
-      <Card.Body>
-        <Card.Title>{game}</Card.Title>
-        <Row>
-          <Col>
-            <Card.Text>{`${host}`}</Card.Text>
-            <Card.Text title={key}>{`${name}`}</Card.Text>
-          </Col>
-          <Col className="align-self-center">
-            <div
-              className="d-flex flex-row-reverse"
-              style={{
-                columnGap: "1rem"
-              }}
-            >
-              <Button
-                variant="outline-danger"
-                onClick={handleRemoveBot}
+    <div className="d-grid gap-2 grid-bot-item align-items-start">
+      <Card>
+        <Card.Body>
+          <Card.Title className="d-flex align-items-center">
+            <span className="text-nowrap text-truncate">{game}</span>
+          </Card.Title>
+          <Row>
+            <Col>
+              <Card.Text>{`${host}`}</Card.Text>
+              <Card.Text title={key}>{`${name}`}</Card.Text>
+            </Col>
+            <Col className="align-self-center">
+              <div
+                className="d-flex flex-row-reverse"
+                style={{
+                  columnGap: "1rem"
+                }}
               >
-                <Trash />
-              </Button>
-              {
-                joined ? (
-                  <Button
-                    variant="outline-secondary"
-                    onClick={handleDisconnect}
-                  >
-                    <Pause />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline-success"
-                    onClick={handleJoinGame}
-                  >
-                    <Play />
-                  </Button>
-                )
-              }
-            </div>
-          </Col>
-        </Row>
-      </Card.Body>
-    </Card>
+                <Button
+                  variant="outline-danger"
+                  onClick={handleRemoveBot}
+                >
+                  <Trash />
+                </Button>
+                {
+                  joined ? (
+                    <Button
+                      variant="outline-secondary"
+                      onClick={handleDisconnect}
+                    >
+                      <Pause />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline-success"
+                      onClick={handleJoinGame}
+                    >
+                      <Play />
+                    </Button>
+                  )
+                }
+              </div>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+      <Broadcast
+        id={id}
+        match={match}
+      />
+    </div>
   );
 };
 

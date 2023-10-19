@@ -21,7 +21,7 @@ class Match {
       autoConnect: true,
     });
 
-    this.socket = this.manager.socket("/")
+    this.socket = this.manager.socket("/");
   }
 
   public connect() {
