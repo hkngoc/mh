@@ -1,26 +1,222 @@
-import { Scene, GameObjects, Cameras } from 'phaser';
+/* eslint-disable @typescript-eslint/no-useless-constructor */
+import {
+  Scene,
+  Cameras,
+  Tilemaps,
+} from 'phaser';
+
+import {
+  Player,
+  Spoil,
+} from '../entities';
+
+// import grounds from '../../../../../images/training_map_2023.png';
 
 export class Play extends Scene {
-  private helloLabel!: GameObjects.Text;
-  private camera!: Cameras.Scene2D.Camera;
+  private camera?: Cameras.Scene2D.Camera;
+  private tilemap?: Tilemaps.Tilemap;
+  private players: any = {};
+  private unregister?: any;
+
+  private spoils: Spoil[] = [];
+
+  constructor(config: any) {
+    super(config);
+  };
 
   init() {
     this.camera = this.cameras.main;
     this.camera.setBackgroundColor('#24252A');
-  }
+    // this.camera.setZoom(0.9);
+  };
 
+  preload() {
+    this.load.image('grounds', 'images/training_map_2023.png');
+    // this.load.image('grounds', grounds);
+
+    // this.load.image('spoils', 'images/spoils_tile_2023.png');
+
+    this.load.spritesheet(
+      'player1',
+      'images/player1_2023.png',
+      {
+        frameWidth: 35,
+        frameHeight: 35
+      }
+    );
+
+    this.load.spritesheet(
+      'spoils',
+      'images/spoils_tile_2023.png',
+      {
+        frameWidth: 35,
+        frameHeight: 35
+      }
+    );
+
+    // this.load.image('player1', 'images/player1_2023.png');
+    // this.load.image('player2', 'images/player2_2023.png');
+  };
+  
   create() {
-    const { centerX, centerY } = this.camera;
-    this.helloLabel = this.add
-      .text(centerX, centerY, 'Hello World', {
-        fontFamily: 'Rancho',
-        fontSize: 80,
-      })
-      .setShadow(5, 5, '#5588EE', 0, true, true)
-      .setOrigin(0.5, 0.5);
+    const mapConfig = this.registry.get("mapConfig");
+    const mode = this.registry.get("mode");
+    const {
+      map_info: {
+        map,
+        size: { rows, cols },
+        players,
+      }
+    } = mapConfig;
+
+    const size =  mode === "training" ? 35 : 55
+
+    this.tilemap = this.make.tilemap({
+      data: map,
+      tileWidth: size,
+      tileHeight: size,
+    });
+
+    const grounds = this.tilemap.addTilesetImage('grounds', 'grounds');
+    // const spoils = this.tilemap.addTilesetImage('spoils', 'spoils');
+    this.tilemap.createLayer(0, grounds!);
+
+    for (const player of players) {
+      const {
+        id,
+        currentPosition: { col, row }
+      } = player;
+
+      const p = new Player(
+        this,
+        col,
+        row,
+        "player1",
+        15,
+        {
+          id,
+          size,
+        }
+      );
+
+      this.players[id] = p;
+    }
+
+    const viewport = this.scale.getViewPort();
+
+    // console.log("viewport", viewport);
+    const w = cols * size;
+    const h = rows * size;
+    
+    if (w/h > viewport.width/viewport.height) {
+      // zoom follow width
+      const zoomlevel = viewport.width / w;
+      console.log(w, h, zoomlevel);
+
+      this.camera?.setBounds(
+        viewport.x,
+        viewport.y - (0.5 * Math.abs(viewport.height - h * zoomlevel)),
+        viewport.width,
+        viewport.height,
+        false,
+      );
+      this.camera?.setZoom(zoomlevel);
+    } else {
+      const zoomlevel = viewport.height / h;
+      // console.log(w, h, zoomlevel);
+
+      this.camera?.setBounds(
+        viewport.x - (0.5 * Math.abs(viewport.width - w * zoomlevel)),
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        false,
+      );
+      this.camera?.setZoom(zoomlevel);
+    }
+
+    const match = this.registry.get("match");
+    // console.log("register event");
+    this.unregister = match?.registerTicktack(this.onTicktack.bind(this));
+  };
+
+  // shoud be thrott
+  onTicktack(json: any) {
+    // console.log("on ticktack", json);
+    // console.log("receive event");
+    
+    const mode = this.registry.get("mode");
+    const size =  mode === "training" ? 35 : 55;
+
+    const {
+      map_info: {
+        map,
+        players,
+        // bombs,
+        spoils,
+        size: { rows, cols },
+      }
+    } = json;
+
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const tile = this.tilemap?.getTileAt(j, i, undefined, 0);
+
+        if (tile?.index !== map[i][j]) {
+          this.tilemap?.fill?.(map[i][j], j, i, undefined, undefined, true, 0);
+        }
+      }
+    }
+
+    for (let i = this.spoils.length - 1; i >= 0; i--) {
+      const { col, row } = this.spoils[i];
+
+      const index = spoils.findIndex((s: any) => s.row === row && s.col === col);
+
+      if (index < 0) {
+        this.spoils[i]?.destroy(true);
+
+        // this.spoils.splice(i, 1);
+      }
+    }
+
+    for (const spoil of spoils) {
+      const { col, row, spoil_type } = spoil;
+
+      const index = this.spoils.findIndex(s => s.row === row && s.col === col);
+
+      if (index < 0) {
+        const s = new Spoil(
+          this,
+          col,
+          row,
+          "spoils",
+          Spoil.mapTypeToFrame(spoil_type),
+          { size }
+        );
+
+        this.spoils.push(s);
+      }
+    }
+
+    // console.log(this.players);
+    for (const player of players) {
+      const {
+        id,
+        currentPosition: { col, row },
+        speed,
+      } = player;
+
+      this.players[id]?.goTo?.({ x: col, y: row }, speed);
+    }
   }
 
   update() {
-    this.helloLabel.angle += 1;
+  };
+
+  destroy() {
+    console.log("scene destroy 1");
+    this.unregister?.();
+    this.tilemap = undefined;
   }
 };

@@ -19,7 +19,12 @@ import {
   Trash,
 } from 'react-bootstrap-icons';
 
-import { selectBot, removeBot } from '../../../features/bot/botSlice';
+import {
+  selectBot,
+  removeBot,
+  saveMap,
+  cleanMap,
+} from '../../../features/bot/botSlice';
 
 import { Match } from '../../../bot';
 
@@ -76,18 +81,25 @@ const Bot = ({ id }) => {
   ]);
 
   useEffect(() => {
-    if (match) {
-      match.registerJoinListener(onConnected);
-    }
+    dispatch(cleanMap({ id }));
 
     return () => {
-      if (match) {
-        match.unRegisterJoinListener();
-      }
+      dispatch(cleanMap({ id }));
+    }
+  }, [
+    id,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    const unregister = match?.registerJoinGame(onConnected);
+
+    return () => {
+      unregister?.();
     }
   }, [
     match,
-    onConnected
+    onConnected,
   ]);
 
   const handleJoinGame = useCallback(() => {
@@ -100,8 +112,15 @@ const Bot = ({ id }) => {
     if (match) {
       match.disconnect();
       setJoined(false);
+
     }
-  }, [match]);
+
+    dispatch(cleanMap({ id }));
+  }, [
+    match,
+    id,
+    dispatch,
+  ]);
 
   const handleRemoveBot = useCallback(() => {
     if (match) {
@@ -114,6 +133,25 @@ const Bot = ({ id }) => {
     id,
     match,
     dispatch,
+  ]);
+
+  const onFirstLoad = useCallback((map) => {
+    dispatch(saveMap({ id, map }));
+  }, [
+    id,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    const unregister = joined ? match?.registerTicktack(onFirstLoad, { once: true }) : null;
+
+    return () => {
+      unregister?.();
+    };
+  }, [
+    match,
+    joined,
+    onFirstLoad,
   ]);
 
   return (
@@ -163,10 +201,15 @@ const Bot = ({ id }) => {
           </Row>
         </Card.Body>
       </Card>
-      <Broadcast
-        id={id}
-        match={match}
-      />
+      {
+        joined && (
+          <Broadcast
+            id={id}
+            match={match}
+            mode="training"
+          />
+        )
+      }
     </div>
   );
 };

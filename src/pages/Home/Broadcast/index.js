@@ -1,29 +1,63 @@
-import React, { useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
+
+import { useSelector } from 'react-redux'; 
 
 import {
   Ratio,
 } from 'react-bootstrap';
 
-import useGame from './hooks/useGame';
-import config from './game/config';
+import {
+  selectBot,
+} from '../../../features/bot/botSlice';
 
-const Broadcast = ({ id, match }) => {
+import Game from './game';
+
+import DEFAULT_CONFIG from './game/config';
+
+const Broadcast = ({ id, match, mode }) => {
+  const [game, setGame] = useState();
   const container = useRef(null);
 
-  const game = useGame(config, container);
+  const {
+    map,
+  } = useSelector(selectBot(id));
 
   useEffect(() => {
-    if (match) {
+    if (map && !game && container.current) {
+      const newGame = new Game({
+        ...DEFAULT_CONFIG,
+        mapConfig: map,
+        mode: mode,
+        match: match,
+        parent: container.current,
+      });
 
+      setGame(newGame);
     }
 
+    
     return () => {
-      
+      if (!map && game) {
+        console.log("destroy game 1");
+        game.destroy(true);
+      }
     }
-  }, [match]);
+  }, [
+    container,
+    game,
+    map,
+    mode,
+    match,
+  ]);
 
   return (
-    <Ratio aspectRatio="16x9">
+    <Ratio
+      aspectRatio={"16x9"}
+    >
       <div id={`phaser-container-${id}`} ref={container} />
     </Ratio>
   );

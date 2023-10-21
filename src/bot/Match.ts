@@ -1,6 +1,7 @@
 import { Manager, Socket } from 'socket.io-client';
 
 const EV_JOIN_GAME = 'join game';
+const EV_TICKTACK = 'ticktack player';
 
 class Match {
   private host: string;
@@ -40,6 +41,30 @@ class Match {
   public unRegisterJoinListener() {
     if (this.onJoinGame) {
       this.socket.off(EV_JOIN_GAME, this.onJoinGame);
+    }
+  }
+
+  public registerJoinGame(callback: (...args: any[]) => void) {
+    this.socket.on(EV_JOIN_GAME, callback);
+
+    return () => {
+      if (this.socket) {
+        this.socket.off(EV_JOIN_GAME, callback);
+      }
+    }
+  }
+
+  public registerTicktack(callback: (...args: any[]) => void, { once = false } = {}) {
+    if (once) {
+      this.socket.once(EV_TICKTACK, callback);
+    } else {
+      this.socket.on(EV_TICKTACK, callback);
+    }
+
+    return () => {
+      if (this.socket) {
+        this.socket.off(EV_TICKTACK, callback);
+      }
     }
   }
 
