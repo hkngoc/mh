@@ -23,3 +23,12 @@ export const DRAGON_EGG_SPEED = 3;
 export const DRAGON_EGG_ATTACK = 4;
 export const DRAGON_EGG_DELAY = 5;
 export const DRAGON_EGG_MYSTIC = 6;
+
+export const EXPLOSION_TIME = 2000;
+
+export const EXPLOSION_DIRECTIONS = [
+  { x:  0, y: -1, end: 'up',    plumb: 'vertical'   },
+  { x:  1, y:  0, end: 'right', plumb: 'horizontal' },
+  { x:  0, y:  1, end: 'down',  plumb: 'vertical'   },
+  { x: -1, y:  0, end: 'left',  plumb: 'horizontal' },
+];
