@@ -16,6 +16,7 @@ class Match {
   private socket: Socket;
 
   private unregister?: any;
+  private onWatch?: any;
 
   private bot?: any
 
@@ -36,8 +37,16 @@ class Match {
     this.bot.ticktack?.(cloneDeep({ ...json }));
   }
 
-  private onCalculated({ directs } = {} as any) {
-    if (this.socket && directs) {
+  private onCalculated(result: any) {
+    this.onWatch?.(result);
+
+    if (!result) {
+      return;
+    }
+
+    const { watch, directs } = result;
+
+    if (this.socket && !watch && directs) {
       // socket emit drive result to server
       this.socket.emit('drive player', { direction: directs });
     }
@@ -53,6 +62,7 @@ class Match {
     this.unregister?.();
     this.unregister = null;
     this.bot = null;
+    this.onWatch = null;
   }
 
   private registerAi() {
@@ -63,6 +73,16 @@ class Match {
       }
     }, this.onCalculated.bind(this));
     this.unregister = this.registerTicktack(this.handleTicktackForAi.bind(this));
+  }
+
+  public registerWatchAiResult(callback: Function) {
+    this.onWatch = callback;
+
+    return this.unRegisterWatchAiResult;
+  }
+
+  public unRegisterWatchAiResult() {
+    this.onWatch = null;
   }
 
   public registerJoinGame(callback: (...args: any[]) => void) {

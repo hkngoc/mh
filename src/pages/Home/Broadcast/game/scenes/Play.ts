@@ -11,6 +11,7 @@ import {
   Player,
   Spoil,
   Bomb,
+  ThinkCell,
 } from '../entities';
 
 import {
@@ -25,9 +26,11 @@ export class Play extends Scene {
   private tilemap?: Tilemaps.Tilemap;
   private players: any = {};
   private unregister?: any;
+  private unregisterWatch?: any;
 
   private spoils = new GameObjects.Group(this, []);
   private bombs = new GameObjects.Group(this, []);
+  private thinks = new GameObjects.Group(this, []);
 
   constructor(config: any) {
     super(config);
@@ -85,9 +88,10 @@ export class Play extends Scene {
 
     this.setupCamera({ cols, rows, size});
 
-    // console.log("register event");
     const match = this.registry.get("match");
+
     this.unregister = match?.registerTicktack(this.onTicktack.bind(this));
+    this.unregisterWatch = match?.registerWatchAiResult(this.onAiResult.bind(this));
   };
 
   addPlayers(players: [], { size }: any) {
@@ -169,7 +173,7 @@ export class Play extends Scene {
   onTicktack(json: any) {
     // console.log("on ticktack", json);
     // console.log("receive event");
-    
+
     const mode = this.registry.get("mode");
     const size =  mode === "training" ? 35 : 55;
 
@@ -341,12 +345,65 @@ export class Play extends Scene {
     }
   }
 
+  onAiResult(result: any) {
+    if (!result) {
+      // clean solution
+      for (const think of this.thinks.children.entries) {
+        this.thinks.killAndHide(think);
+      }
+
+      return;
+    }
+
+    // const mode = this.registry.get("mode");
+    // const size =  mode === "training" ? 35 : 55;
+
+    const { positions } = result;
+
+    for (let i = this.thinks.children.size - 1; i >= 0; i--) {
+      const t = this.thinks.getChildren().at(i) as ThinkCell;
+      const { col, row } = t;
+
+      const index = positions.findIndex((p: any) => p.y === row && p.x === col);
+
+      if (index < 0) {
+        t.destroy(true);
+
+        this.spoils.killAndHide(t);
+      } else {
+        t.visit();
+      }
+    }
+
+    for (const p of positions) {
+      const { x, y, visited } = p;
+
+      const index = (this.thinks.getChildren() as ThinkCell[]).findIndex(s => s.row === y && s.col === x);
+
+      if (index < 0) {
+        const c = new ThinkCell(
+          this,
+          x,
+          y,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          { visited },
+        );
+
+        this.spoils.add(c);
+      }
+    }
+  }
+
   update() {
   };
 
   destroy() {
     console.log("scene destroy 1");
     this.unregister?.();
+    this.unregisterWatch?.();
     this.tilemap = undefined;
   }
 };

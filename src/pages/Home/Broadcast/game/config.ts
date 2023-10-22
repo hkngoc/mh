@@ -35,3 +35,9 @@ export const EXPLOSION_DIRECTIONS = [
 
 export const EXPLOSION_STOP = [1, 2, 5];
 export const EXPLOSION_DESTROYED = [2, 5];
+
+export const THINK_BORDER_COLOR = 0x6c757d // 0xdc3545;
+export const THINK_FILL_COLOR =0x6c757d;
+export const THINK_ALPHA = 0.6;
+export const THINK_BORDER_WIDTH = 2;
+export const THINK_SCALE = 0.75;

@@ -41,16 +41,17 @@ Brain.prototype.onCalculated = function(result) {
 
   Logger.info('result', result);
 
-  if (!result) {
-    return;
-  }
+  this.callback(result);
 
-  const { watch } = result;
-  // console.log(result, watch);
+  // if (!result) {
+  //   return;
+  // }
 
-  if (this.callback && !watch) {
-    this.callback(result);
-  }
+  // const { watch } = result;
+  // // console.log(result, watch);
+
+  // if (this.callback && !watch) {
+  // }
 };
 
 export default Brain;
