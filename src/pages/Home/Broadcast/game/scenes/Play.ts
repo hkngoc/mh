@@ -56,7 +56,7 @@ export class Play extends Scene {
     this.load.spritesheet("explosion_down", "/images/explosion_down.png", frameConfig);
     this.load.spritesheet("explosion_left", "/images/explosion_left.png", frameConfig);
   };
-  
+
   create() {
     const mapConfig = this.registry.get("mapConfig");
     const mode = this.registry.get("mode");
@@ -65,7 +65,7 @@ export class Play extends Scene {
       map_info: {
         map,
         size: { rows, cols },
-        players,
+        players = [],
       }
     } = mapConfig;
 

@@ -14,6 +14,7 @@ import {
 import {
   selectBot,
   saveMap,
+  cleanMap,
 } from '../../../features/bot/botSlice';
 
 import Game from './game';
@@ -49,6 +50,7 @@ const Broadcast = ({ id, player, match, mode }) => {
 
   useEffect(() => {
     if (map && !game && container.current) {
+
       const newGame = new Game({
         ...DEFAULT_CONFIG,
         mapConfig: map,
@@ -62,10 +64,9 @@ const Broadcast = ({ id, player, match, mode }) => {
     }
 
     return () => {
-      if (!map && game) {
-        console.log("destroy game 1");
-        game.destroy(true);
-      }
+      dispatch(cleanMap({ id }));
+      game?.destroy(true);
+      setGame(null);
     }
   }, [
     container,
@@ -74,6 +75,8 @@ const Broadcast = ({ id, player, match, mode }) => {
     mode,
     match,
     player,
+    id,
+    dispatch,
   ]);
 
   return (
