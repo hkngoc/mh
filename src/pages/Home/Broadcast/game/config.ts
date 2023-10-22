@@ -32,3 +32,6 @@ export const EXPLOSION_DIRECTIONS = [
   { x:  0, y:  1, end: 'down',  plumb: 'vertical'   },
   { x: -1, y:  0, end: 'left',  plumb: 'horizontal' },
 ];
+
+export const EXPLOSION_STOP = [1, 2, 5];
+export const EXPLOSION_DESTROYED = [2, 5];

@@ -16,6 +16,8 @@ import {
 import {
   TILE_SIZE,
   EXPLOSION_DIRECTIONS,
+  EXPLOSION_DESTROYED,
+  EXPLOSION_STOP,
 } from '../config';
 
 export class Play extends Scene {
@@ -298,8 +300,8 @@ export class Play extends Scene {
         const currentCol = col + (direction.x * i);
 
         const cell = map[currentRow][currentCol];
-        const stopped = [1, 2, 5].includes(cell);
-        const destroyed = [2].includes(cell);
+        const stopped = EXPLOSION_STOP.includes(cell);
+        const destroyed = EXPLOSION_DESTROYED.includes(cell);
         const isLast = (i === power);
 
         if (stopped || destroyed || isLast) {
