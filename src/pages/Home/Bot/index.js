@@ -44,7 +44,7 @@ const Bot = ({ id }) => {
     },
     player: {
       name,
-      key
+      key,
     }
   } = playerInGame;
 
@@ -207,6 +207,7 @@ const Bot = ({ id }) => {
             id={id}
             match={match}
             mode="training"
+            player={key}
           />
         )
       }

@@ -70,6 +70,8 @@ export class Play extends Scene {
   };
 
   addPlayers(players: [], { size }: any) {
+    const mainPlayer = this.registry.get("player");
+
     for (const player of players) {
       const {
         id,
@@ -80,7 +82,7 @@ export class Play extends Scene {
         this,
         col,
         row,
-        "player1",
+        id === mainPlayer ? "player1" : "player2",
         15,
         {
           id,

@@ -18,7 +18,7 @@ import Game from './game';
 
 import { DEFAULT_CONFIG } from './game/config';
 
-const Broadcast = ({ id, match, mode }) => {
+const Broadcast = ({ id, player, match, mode }) => {
   const [game, setGame] = useState();
   const container = useRef(null);
 
@@ -33,6 +33,7 @@ const Broadcast = ({ id, match, mode }) => {
         mapConfig: map,
         mode: mode,
         match: match,
+        player: player,
         parent: container.current,
       });
 
@@ -52,6 +53,7 @@ const Broadcast = ({ id, match, mode }) => {
     map,
     mode,
     match,
+    player,
   ]);
 
   return (
