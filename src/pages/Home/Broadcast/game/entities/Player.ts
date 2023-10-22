@@ -2,6 +2,8 @@ import Phaser, {
   GameObjects,
 } from 'phaser';
 
+import  { TILE_SIZE } from '../config';
+
 export class Player extends GameObjects.Sprite {
   private config?: object;
   private position: any;
@@ -14,7 +16,7 @@ export class Player extends GameObjects.Sprite {
     frame?: string | number,
     config?: any,
   ) {
-    const { size = 35 } = (config || {});
+    const { size = TILE_SIZE } = (config || {});
 
     super(
       scene,
@@ -86,7 +88,7 @@ export class Player extends GameObjects.Sprite {
 
   goTo(position: any, speed: any) {
     // console.log("player can be move", position, this.position);
-    const { size = 35 } = (this.config ?? {}) as any;
+    const { size = TILE_SIZE } = (this.config ?? {}) as any;
 
     this.animateFace(position);
 

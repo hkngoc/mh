@@ -16,7 +16,7 @@ import {
 
 import Game from './game';
 
-import DEFAULT_CONFIG from './game/config';
+import { DEFAULT_CONFIG } from './game/config';
 
 const Broadcast = ({ id, match, mode }) => {
   const [game, setGame] = useState();

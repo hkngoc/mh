@@ -10,6 +10,8 @@ import {
   Spoil,
 } from '../entities';
 
+import { TILE_SIZE } from '../config';
+
 export class Play extends Scene {
   private camera?: Cameras.Scene2D.Camera;
   private tilemap?: Tilemaps.Tilemap;
@@ -28,33 +30,11 @@ export class Play extends Scene {
   };
 
   preload() {
-    this.load.image('grounds', 'images/training_map_2023.png');
+    this.load.image("grounds", "images/training_map_2023.png");
 
-    this.load.spritesheet(
-      'spoils',
-      'images/spoils_tile_2023.png',
-      {
-        frameWidth: 35,
-        frameHeight: 35
-      }
-    );
-
-    this.load.spritesheet(
-      'player1',
-      'images/player1_2023.png',
-      {
-        frameWidth: 35,
-        frameHeight: 35
-      }
-    );
-    this.load.spritesheet(
-      'player2',
-      'images/player2_2023.png',
-      {
-        frameWidth: 35,
-        frameHeight: 35
-      }
-    );
+    this.load.spritesheet("spoils", "images/spoils_tile_2023.png", { frameWidth: TILE_SIZE, frameHeight: TILE_SIZE });
+    this.load.spritesheet("player1", "images/player1_2023.png", { frameWidth: TILE_SIZE, frameHeight: TILE_SIZE });
+    this.load.spritesheet("player2", "images/player2_2023.png", { frameWidth: TILE_SIZE, frameHeight: TILE_SIZE });
   };
   
   create() {

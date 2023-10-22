@@ -2,10 +2,13 @@ import {
   GameObjects,
 } from 'phaser';
 
-export const DRAGON_EGG_SPEED = 3;
-export const DRAGON_EGG_ATTACK = 4;
-export const DRAGON_EGG_DELAY = 5;
-export const DRAGON_EGG_MYSTIC = 6;
+import {
+  TILE_SIZE,
+  DRAGON_EGG_SPEED,
+  DRAGON_EGG_ATTACK,
+  DRAGON_EGG_DELAY,
+  DRAGON_EGG_MYSTIC,
+} from '../config';
 
 export class Spoil extends GameObjects.Sprite {
   private config?: object;
@@ -22,7 +25,7 @@ export class Spoil extends GameObjects.Sprite {
     frame?: string | number,
     config?: any,
   ) {
-    const { type, size = 35 } = (config || {});
+    const { type, size = TILE_SIZE } = (config || {});
 
     super(
       scene,

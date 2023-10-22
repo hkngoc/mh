@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-const DEFAULT_CONFIG = {
+export const DEFAULT_CONFIG = {
   width: "100%",
   height: "100%",
   type: Phaser.AUTO,
@@ -17,4 +17,9 @@ const DEFAULT_CONFIG = {
   // scene: Play,
 };
 
-export default DEFAULT_CONFIG;
+export const TILE_SIZE = 35;
+
+export const DRAGON_EGG_SPEED = 3;
+export const DRAGON_EGG_ATTACK = 4;
+export const DRAGON_EGG_DELAY = 5;
+export const DRAGON_EGG_MYSTIC = 6;
