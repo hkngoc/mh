@@ -126,19 +126,19 @@ export class Play extends Scene {
       const zoomlevel = viewport.width / w;
       const diff = viewport.height - h * zoomlevel;
 
-      console.log(
-        "setup camera",
-        {
-          width: viewport.width,
-          height: viewport.height,
-        },
-        {
-          width: w,
-          height: h,
-        },
-        diff,
-        zoomlevel,
-      )
+      // console.log(
+      //   "setup camera",
+      //   {
+      //     width: viewport.width,
+      //     height: viewport.height,
+      //   },
+      //   {
+      //     width: w,
+      //     height: h,
+      //   },
+      //   diff,
+      //   zoomlevel,
+      // );
 
       this.camera?.setBounds(
         viewport.x,
