@@ -60,6 +60,7 @@ export class Play extends Scene {
   create() {
     const mapConfig = this.registry.get("mapConfig");
     const mode = this.registry.get("mode");
+
     const {
       map_info: {
         map,
@@ -68,7 +69,7 @@ export class Play extends Scene {
       }
     } = mapConfig;
 
-    const size =  mode === "training" ? 35 : 55
+    const size =  mode === "training" ? 35 : 55;
 
     this.tilemap = this.make.tilemap({
       data: map,
@@ -77,9 +78,18 @@ export class Play extends Scene {
     });
 
     const grounds = this.tilemap.addTilesetImage('grounds', 'grounds');
-    // const spoils = this.tilemap.addTilesetImage('spoils', 'spoils');
     this.tilemap.createLayer(0, grounds!);
 
+    this.addPlayers(players, { size });
+
+    this.setupCamera({ cols, rows, size});
+
+    // console.log("register event");
+    const match = this.registry.get("match");
+    this.unregister = match?.registerTicktack(this.onTicktack.bind(this));
+  };
+
+  addPlayers(players: [], { size }: any) {
     for (const player of players) {
       const {
         id,
@@ -100,13 +110,7 @@ export class Play extends Scene {
 
       this.players[id] = p;
     }
-
-    this.setupCamera({ cols, rows, size});
-
-    const match = this.registry.get("match");
-    // console.log("register event");
-    this.unregister = match?.registerTicktack(this.onTicktack.bind(this));
-  };
+  }
 
   setupCamera({ cols, rows, size}: any) {
     const viewport = this.scale.getViewPort();
@@ -158,6 +162,12 @@ export class Play extends Scene {
       }
     } = json;
 
+    this.updateMap(map, { rows, cols });
+    this.updateSpoils(spoils, { size });
+    this.updatePlayers(players);
+  }
+
+  updateMap(map: [][], { rows, cols }: any) {
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
         const tile = this.tilemap?.getTileAt(j, i, undefined, 0);
@@ -167,7 +177,9 @@ export class Play extends Scene {
         }
       }
     }
+  }
 
+  updateSpoils(spoils: [], { size }: any) {
     for (let i = this.spoils.length - 1; i >= 0; i--) {
       const { col, row } = this.spoils[i];
 
@@ -198,8 +210,9 @@ export class Play extends Scene {
         this.spoils.push(s);
       }
     }
+  }
 
-    // console.log(this.players);
+  updatePlayers(players: []) {
     for (const player of players) {
       const {
         id,
