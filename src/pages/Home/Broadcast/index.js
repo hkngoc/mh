@@ -2,9 +2,10 @@ import React, {
   useState,
   useEffect,
   useRef,
+  useCallback,
 } from 'react';
 
-import { useSelector } from 'react-redux'; 
+import { useSelector, useDispatch } from 'react-redux'; 
 
 import {
   Ratio,
@@ -12,6 +13,7 @@ import {
 
 import {
   selectBot,
+  saveMap,
 } from '../../../features/bot/botSlice';
 
 import Game from './game';
@@ -21,10 +23,29 @@ import { DEFAULT_CONFIG } from './game/config';
 const Broadcast = ({ id, player, match, mode }) => {
   const [game, setGame] = useState();
   const container = useRef(null);
+  const dispatch = useDispatch();
 
   const {
     map,
   } = useSelector(selectBot(id));
+
+  const onFirstLoad = useCallback((map) => {
+    dispatch(saveMap({ id, map }));
+  }, [
+    id,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    const unregister = match?.registerTicktack(onFirstLoad, { once: true });
+
+    return () => {
+      unregister?.();
+    };
+  }, [
+    match,
+    onFirstLoad,
+  ]);
 
   useEffect(() => {
     if (map && !game && container.current) {
@@ -40,7 +61,6 @@ const Broadcast = ({ id, player, match, mode }) => {
       setGame(newGame);
     }
 
-    
     return () => {
       if (!map && game) {
         console.log("destroy game 1");

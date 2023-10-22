@@ -17,12 +17,13 @@ import {
   Play,
   Pause,
   Trash,
+  Eye,
+  EyeSlash,
 } from 'react-bootstrap-icons';
 
 import {
   selectBot,
   removeBot,
-  saveMap,
   cleanMap,
 } from '../../../features/bot/botSlice';
 
@@ -31,10 +32,11 @@ import { Match } from '../../../bot';
 import Broadcast from '../Broadcast';
 
 const Bot = ({ id }) => {
+  const dispatch = useDispatch();
+
   const [match, setMatch] = useState(null);
   const [joined, setJoined] = useState(false);
-
-  const dispatch = useDispatch();
+  const [preview, setPreview] = useState(false);
 
   const playerInGame = useSelector(selectBot(id));
   const {
@@ -112,7 +114,6 @@ const Bot = ({ id }) => {
     if (match) {
       match.disconnect();
       setJoined(false);
-
     }
 
     dispatch(cleanMap({ id }));
@@ -135,31 +136,37 @@ const Bot = ({ id }) => {
     dispatch,
   ]);
 
-  const onFirstLoad = useCallback((map) => {
-    dispatch(saveMap({ id, map }));
-  }, [
-    id,
-    dispatch,
-  ]);
-
   useEffect(() => {
-    const unregister = joined ? match?.registerTicktack(onFirstLoad, { once: true }) : null;
-
-    return () => {
-      unregister?.();
-    };
+    if (!joined) {
+      setPreview(false);
+    }
   }, [
-    match,
     joined,
-    onFirstLoad,
-  ]);
+  ])
+
+  const togglePreview = useCallback(() => {
+    setPreview((preview) => !preview);
+  }, []);
 
   return (
     <div className="d-grid gap-2 grid-bot-item align-items-start">
       <Card>
         <Card.Body>
-          <Card.Title className="d-flex align-items-center">
+          <Card.Title className="d-flex align-items-center justify-content-between">
             <span className="text-nowrap text-truncate">{game}</span>
+            <Button
+              variant="outline-secondary"
+              onClick={togglePreview}
+              disabled={!joined}
+            >
+              {
+                preview ? (
+                  <EyeSlash />
+                ) : (
+                  <Eye />
+                )
+              }
+            </Button>
           </Card.Title>
           <Row>
             <Col>
@@ -202,7 +209,7 @@ const Bot = ({ id }) => {
         </Card.Body>
       </Card>
       {
-        joined && (
+        joined && preview && (
           <Broadcast
             id={id}
             match={match}

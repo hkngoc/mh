@@ -46,11 +46,9 @@ const App = () => {
               MH
             </Link>
           </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
+          <Nav className="me-auto">
             </Nav>
-            <Nav className="gap-2 align-items-start">
+            <Nav className="gap-2 align-items-start flex-row">
               <Button
                 variant="outline-success"
                 onClick={() => setShowAdd(true)}
@@ -63,9 +61,7 @@ const App = () => {
               >
                 <Gear />
               </Button>
-
             </Nav>
-          </Navbar.Collapse>
         </Container>
       </Navbar>
       <Container className="my-3">
