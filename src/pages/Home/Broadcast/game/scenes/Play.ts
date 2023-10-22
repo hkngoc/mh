@@ -10,8 +10,6 @@ import {
   Spoil,
 } from '../entities';
 
-// import grounds from '../../../../../images/training_map_2023.png';
-
 export class Play extends Scene {
   private camera?: Cameras.Scene2D.Camera;
   private tilemap?: Tilemaps.Tilemap;
@@ -27,23 +25,10 @@ export class Play extends Scene {
   init() {
     this.camera = this.cameras.main;
     this.camera.setBackgroundColor('#24252A');
-    // this.camera.setZoom(0.9);
   };
 
   preload() {
     this.load.image('grounds', 'images/training_map_2023.png');
-    // this.load.image('grounds', grounds);
-
-    // this.load.image('spoils', 'images/spoils_tile_2023.png');
-
-    this.load.spritesheet(
-      'player1',
-      'images/player1_2023.png',
-      {
-        frameWidth: 35,
-        frameHeight: 35
-      }
-    );
 
     this.load.spritesheet(
       'spoils',
@@ -54,8 +39,22 @@ export class Play extends Scene {
       }
     );
 
-    // this.load.image('player1', 'images/player1_2023.png');
-    // this.load.image('player2', 'images/player2_2023.png');
+    this.load.spritesheet(
+      'player1',
+      'images/player1_2023.png',
+      {
+        frameWidth: 35,
+        frameHeight: 35
+      }
+    );
+    this.load.spritesheet(
+      'player2',
+      'images/player2_2023.png',
+      {
+        frameWidth: 35,
+        frameHeight: 35
+      }
+    );
   };
   
   create() {
@@ -102,43 +101,44 @@ export class Play extends Scene {
       this.players[id] = p;
     }
 
-    const viewport = this.scale.getViewPort();
-
-    // console.log("viewport", viewport);
-    const w = cols * size;
-    const h = rows * size;
-    
-    if (w/h > viewport.width/viewport.height) {
-      // zoom follow width
-      const zoomlevel = viewport.width / w;
-      console.log(w, h, zoomlevel);
-
-      this.camera?.setBounds(
-        viewport.x,
-        viewport.y - (0.5 * Math.abs(viewport.height - h * zoomlevel)),
-        viewport.width,
-        viewport.height,
-        false,
-      );
-      this.camera?.setZoom(zoomlevel);
-    } else {
-      const zoomlevel = viewport.height / h;
-      // console.log(w, h, zoomlevel);
-
-      this.camera?.setBounds(
-        viewport.x - (0.5 * Math.abs(viewport.width - w * zoomlevel)),
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        false,
-      );
-      this.camera?.setZoom(zoomlevel);
-    }
+    this.setupCamera({ cols, rows, size});
 
     const match = this.registry.get("match");
     // console.log("register event");
     this.unregister = match?.registerTicktack(this.onTicktack.bind(this));
   };
+
+  setupCamera({ cols, rows, size}: any) {
+    const viewport = this.scale.getViewPort();
+
+    const w = cols * size;
+    const h = rows * size;
+
+    if (w/h > viewport.width/viewport.height) {
+      // zoom follow width
+      const zoomlevel = viewport.width / w;
+      const diff = viewport.height - h * zoomlevel;
+
+      this.camera?.setBounds(
+        viewport.x,
+        viewport.y - (0.5 * diff / zoomlevel),
+        viewport.width,
+        viewport.height,
+      );
+      this.camera?.setZoom(zoomlevel);
+    } else {
+      const zoomlevel = viewport.height / h;
+      const diff = viewport.width - w * zoomlevel;
+
+      this.camera?.setBounds(
+        viewport.x - (0.5 * diff / zoomlevel),
+        viewport.y,
+        viewport.width,
+        viewport.height,
+      );
+      this.camera?.setZoom(zoomlevel);
+    }
+  }
 
   // shoud be thrott
   onTicktack(json: any) {

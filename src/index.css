@@ -16,8 +16,8 @@ code {
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 992px) {
+/* @media (min-width: 992px) {
   .grid-bot-item {
     grid-template-columns: 1fr 2fr;
   }
-}
+} */
