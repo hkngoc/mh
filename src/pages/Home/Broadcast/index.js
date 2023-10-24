@@ -81,7 +81,7 @@ const Broadcast = ({ id, player, match, mode }) => {
 
   return (
     <Ratio
-      aspectRatio={"16x9"}
+      aspectRatio={"21x9"}
     >
       <div id={`phaser-container-${id}`} ref={container} />
     </Ratio>

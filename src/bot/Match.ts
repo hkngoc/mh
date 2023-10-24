@@ -51,6 +51,7 @@ class Match {
     console.log("match receive result", result);
     // this.onWatch?.(result);
 
+    // console.log(this.socket);
     // if (!result) {
     //   return;
     // }
@@ -72,6 +73,8 @@ class Match {
 
     this.unregister?.();
     this.unregister = null;
+
+    this.bot?.dispose();
     this.bot = null;
     this.onWatch = null;
   }
@@ -83,7 +86,7 @@ class Match {
       playerId: this.player,
     }, ticktackObservable);
 
-    this.resultObserver = this.busStation?.registerResultListener(this.onCalculated);
+    this.resultObserver = this.busStation?.registerResultListener(this.onCalculated.bind(this));
   }
 
   public registerWatchAiResult(callback: Function) {
