@@ -5,23 +5,17 @@ import {
   exhaustMap,
   share,
   withLatestFrom,
+  map,
 } from 'rxjs';
 
-function timeout(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-const calculate = async () => {
-  await timeout(5000);
-
-  return "done here";
-};
+import calculator from './calculator';
 
 class BusStation {
   private config: any;
 
   private subcriptions?: Subscription;
   private resultListeners?: Subject<any>;
+  private lastResult?: any;
 
   constructor(confg: any, observable?: Observable<any>) {
     this.config = confg;
@@ -31,16 +25,14 @@ class BusStation {
     const sharedObservable  = observable?.pipe(share());
     this.subcriptions = new Subscription();
 
-    const ticktackSubcription = sharedObservable?.subscribe(this.ticktack.bind(this));
-    this.subcriptions.add(ticktackSubcription);
+    // debug
+    // const ticktackSubcription = sharedObservable?.subscribe(this.ticktack.bind(this));
+    // this.subcriptions.add(ticktackSubcription);
 
     const resultObservable = sharedObservable
       ?.pipe(
-        exhaustMap(async () => {
-          const result = await calculate();
-
-          return result;
-        })
+        map(this.mapStateWithLatestResult.bind(this)),
+        exhaustMap(calculator)
       );
 
     if (resultObservable && sharedObservable) {
@@ -51,8 +43,19 @@ class BusStation {
     }
   }
 
+  private mapStateWithLatestResult(state: any) {
+    return [
+      state,
+      {
+        config: this.config,
+        lastResult: this.lastResult,
+      }
+    ];
+  }
+
   private onCalculated([ result, latestData ]: any) {
-    console.log("onCalculated", result, latestData);
+    // console.log("onCalculated", result, latestData);
+    this.lastResult = result;
 
     // check result and latestData can working together
     this.resultListeners?.next(result);
