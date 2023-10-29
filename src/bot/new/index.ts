@@ -8,6 +8,8 @@ import {
   map,
 } from 'rxjs';
 
+import { cloneDeep } from 'lodash';
+
 import calculator from './calculator';
 
 class BusStation {
@@ -45,7 +47,7 @@ class BusStation {
 
   private mapStateWithLatestResult(state: any) {
     return [
-      state,
+      cloneDeep({ ...state }),
       {
         config: this.config,
         lastResult: this.lastResult,

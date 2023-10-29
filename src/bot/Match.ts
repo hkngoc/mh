@@ -49,19 +49,19 @@ class Match {
 
   private onCalculated(result: any) {
     console.log("match receive result", result);
-    // this.onWatch?.(result);
+    this.onWatch?.(result);
 
     // console.log(this.socket);
-    // if (!result) {
-    //   return;
-    // }
+    if (!result) {
+      return;
+    }
 
-    // const { watch, directs } = result;
+    const { watch, directs } = result;
 
-    // if (this.socket && !watch && directs) {
-    //   // socket emit drive result to server
-    //   this.socket.emit('drive player', { direction: directs });
-    // }
+    if (this.socket && !watch && directs) {
+      // socket emit drive result to server
+      this.socket.emit('drive player', { direction: directs });
+    }
   }
 
   public connect() {
@@ -84,6 +84,9 @@ class Match {
 
     this.busStation = new BusStation({
       playerId: this.player,
+      other: {
+        rejectByStop: false // some other config. currenly, hardcode here
+      }
     }, ticktackObservable);
 
     this.resultObserver = this.busStation?.registerResultListener(this.onCalculated.bind(this));
