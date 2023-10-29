@@ -1,10 +1,10 @@
 import {
   First as AI
-} from '../../old/calculator/variant';
+} from './variant';
 
-function timeout(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// function timeout(ms: number) {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// }
 
 const calculate = async ([state, other]: any, index: number) => {
   // console.log("start calculate", state, config, index);
