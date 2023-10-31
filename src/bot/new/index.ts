@@ -17,48 +17,62 @@ class BusStation {
 
   private subcriptions?: Subscription;
   private resultListeners?: Subject<any>;
-  private lastResult?: any;
+
+  private resultObservable?: Observable<any>;
+  private pingObservable?: Observable<any>;
 
   constructor(confg: any, observable?: Observable<any>) {
     this.config = confg;
 
+    const sharedObservable  = observable?.pipe(share());
+
+    this.subcriptions = new Subscription();
+
     this.resultListeners = new Subject<any>();
 
-    const sharedObservable  = observable?.pipe(share());
-    this.subcriptions = new Subscription();
+    this.resultObservable = new Observable((subscriber) => {
+      // just for inital
+      subscriber.next(null);
+
+      const unsubcrible = this.resultListeners?.subscribe((result) => {
+        subscriber.next(result);
+      });
+
+      return () => {
+        unsubcrible?.unsubscribe();
+      }
+    });
+
+    this.pingObservable = new Observable((subscriber) => {
+      // just for inital
+      subscriber.next(null);
+
+      
+    });
 
     // debug
     // const ticktackSubcription = sharedObservable?.subscribe(this.ticktack.bind(this));
     // this.subcriptions.add(ticktackSubcription);
 
-    const resultObservable = sharedObservable
+    const calculateObservable = sharedObservable
       ?.pipe(
-        map(this.mapStateWithLatestResult.bind(this)),
+        map((state) => [
+          cloneDeep({ ...state }),
+          { config: this.config }
+        ]),
+        withLatestFrom(this.resultObservable),
         exhaustMap(calculator)
       );
 
-    if (resultObservable && sharedObservable) {
-      const mergedObservable = resultObservable.pipe(withLatestFrom(sharedObservable));
+    if (calculateObservable && sharedObservable) {
+      const mergedObservable = calculateObservable.pipe(withLatestFrom(sharedObservable));
 
-      const resultSubcription = mergedObservable.subscribe(this.onCalculated.bind(this));
-      this.subcriptions.add(resultSubcription);
+      const calculatedSubcription = mergedObservable.subscribe(this.onCalculated.bind(this));
+      this.subcriptions.add(calculatedSubcription);
     }
   }
 
-  private mapStateWithLatestResult(state: any) {
-    return [
-      cloneDeep({ ...state }),
-      {
-        config: this.config,
-        lastResult: this.lastResult,
-      }
-    ];
-  }
-
   private onCalculated([ result, latestData ]: any) {
-    // console.log("onCalculated", result, latestData);
-    this.lastResult = result;
-
     // check result and latestData can working together
     this.resultListeners?.next(result);
   }
