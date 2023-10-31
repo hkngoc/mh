@@ -1,8 +1,14 @@
 import { Manager, Socket } from 'socket.io-client';
+import {
+  Subscription,
+  fromEvent,
+} from 'rxjs';
 
 import { cloneDeep } from 'lodash';
 
-import Bot from './old';
+// import Bot from './old';
+import BusStation from './new';
+
 
 const EV_JOIN_GAME = 'join game';
 const EV_TICKTACK = 'ticktack player';
@@ -18,7 +24,10 @@ class Match {
   private unregister?: any;
   private onWatch?: any;
 
-  private bot?: any
+  private bot?: any;
+
+  private busStation?: any;
+  private resultObserver?: Subscription;
 
   constructor(host: string, game: string, player: string) {
     this.host = host;
@@ -32,14 +41,17 @@ class Match {
     this.socket = this.manager.socket("/");
   }
 
+
   private handleTicktackForAi(json: any) {
     // console.log("ai thinking here", json);
     this.bot.ticktack?.(cloneDeep({ ...json }));
   }
 
   private onCalculated(result: any) {
+    console.log("match receive result", result);
     this.onWatch?.(result);
 
+    // console.log(this.socket);
     if (!result) {
       return;
     }
@@ -61,18 +73,23 @@ class Match {
 
     this.unregister?.();
     this.unregister = null;
+
+    this.bot?.dispose();
     this.bot = null;
     this.onWatch = null;
   }
 
   private registerAi() {
-    this.bot = new Bot({
+    const ticktackObservable = fromEvent(this.socket, EV_TICKTACK);
+
+    this.busStation = new BusStation({
       playerId: this.player,
       other: {
         rejectByStop: false // some other config. currenly, hardcode here
       }
-    }, this.onCalculated.bind(this));
-    this.unregister = this.registerTicktack(this.handleTicktackForAi.bind(this));
+    }, ticktackObservable);
+
+    this.resultObserver = this.busStation?.registerResultListener(this.onCalculated.bind(this));
   }
 
   public registerWatchAiResult(callback: Function) {
@@ -112,17 +129,20 @@ class Match {
   public joinGame() {
     this.connect();
 
-    this.registerAi();
-
     this.socket.emit(EV_JOIN_GAME, {
       game_id: this.game,
       player_id: this.player,
     });
+
+    this.registerAi();
   }
 
   public dispose() {
     this.unregister?.();
     this.unregister = null;
+
+    this.busStation?.dispose();
+    this.resultObserver?.unsubscribe();
 
     this.socket.off();
     this.socket.disconnect();
