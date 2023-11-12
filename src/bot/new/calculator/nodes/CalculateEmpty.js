@@ -21,7 +21,8 @@ CalculateEmpty.prototype.tick = function(tree) {
         size: { cols, rows },
         map
       },
-      myId
+      myId,
+      dragonEggs,
     },
     blackboard
   } = this.ref;
@@ -33,7 +34,7 @@ CalculateEmpty.prototype.tick = function(tree) {
     for (let j = 0; j < cols; ++j) {
       const val = map[i][j];
 
-      if (val == 2 || val == 10) {
+      if (val == 2 || val == 10 || val == 5) {
         rowCheck[i] = true;
         colCheck[j] = true;
       }

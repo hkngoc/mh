@@ -69,7 +69,12 @@ SyncData.prototype.tick = function(tree) {
 
   const enemyId = enemies[0];
   const { col: eCol, row: eRow } = players[enemyId].currentPosition;
+  // enemy is 10
   map.map_info.map[eRow][eCol] = 10;
+
+  // const { col: eCol2, row: eRow2 } = dragonEggs[enemyId];
+  // map.map_info.map[eRow2][eCol2] = 12;
+  
 
   map.myId = myId;
   map.enemyId = enemyId;

@@ -43,7 +43,7 @@ AI.prototype.scoreFor = function(which) {
     // case 'gifts':
     //   return 1.5;
     case 'enemy_egg':
-      return 10;
+      return 2.0;
     default:
       return 0.5;
   }
