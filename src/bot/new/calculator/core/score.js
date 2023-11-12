@@ -10,13 +10,13 @@ AI.prototype.scoreForSpoils = function(spoils) {
         //   return 2.5;
         case 4:
           // increase power 1
-          return 1.0;
+          return 2.0;
         case 5:
           // decrease delay 400
-          return 1.0;
+          return 2.0;
         case 3:
           // speed
-          return 1.0;
+          return 2.0;
         case 6:
           return 0;
         default:
@@ -32,10 +32,14 @@ AI.prototype.scoreForHuman = function(human) {
   return infected ? 0.6 : 1.5;
 };
 
-AI.prototype.scoreFor = function(which) {
+AI.prototype.scoreFor = function(which, near) {
   switch (which) {
     case 'box':
-      return 0.75;
+      if (near > 0) {
+        return 3.0;
+      } else {
+        return 0.75;
+      }
     case 'enemy':
       return 1.0;
     // case 'virus':
@@ -44,6 +48,8 @@ AI.prototype.scoreFor = function(which) {
     //   return 1.5;
     case 'enemy_egg':
       return 2.0;
+    case 'my_egg':
+      return -3.0;
     default:
       return 0.5;
   }
@@ -139,13 +145,14 @@ AI.prototype.safeScoreForWalk = function(playerId, node, neighbor, travelCost) {
 };
 
 AI.prototype.countingScore = function(obj) {
-  const { box = 0, enemy = 0, enemy_egg = 0, gifts = [], spoils = [], virus = [], human = [], scare = 0 } = obj;
+  const { box = 0, enemy = 0, my_egg = 0, enemy_egg = 0, box_near_enemy_egg = 0, gifts = [], spoils = [], virus = [], human = [], scare = 0 } = obj;
 
   let score = 0;
 
-  score = score + box * this.scoreFor('box');
+  score = score + box * this.scoreFor('box', box_near_enemy_egg);
   score = score + enemy * this.scoreFor('enemy');
   score = score + enemy_egg * this.scoreFor('enemy_egg');
+  score = score + my_egg * this.scoreFor('my_egg');
 
   // score = score + this.scoreFor('virus') * _(virus).filter(v => v.main == true).sumBy(v => 1);
   // score = score + _(human).filter(h => h.main == true).sumBy(h => this.scoreForHuman(h));
@@ -164,7 +171,7 @@ AI.prototype.scoreFn = function(node, scare = 0) {
     bombProfit = {}
   } = node;
 
-  const { box = 0, enemy = 0, enemy_egg = 0, safe } = bombProfit;
+  const { box = 0, enemy = 0, my_egg = 0, enemy_egg = 0, box_near_enemy_egg = 0, safe } = bombProfit;
   const { gifts = [], spoils = [], virus = [], human = [] } = scoreProfit;
 
   return this.countingScore({
@@ -173,6 +180,8 @@ AI.prototype.scoreFn = function(node, scare = 0) {
     box: safe ? box : 0,
     enemy: safe ? enemy : 0,
     enemy_egg: safe ? enemy_egg : 0,
+    box_near_enemy_egg: box_near_enemy_egg,
+    my_egg: my_egg,
     virus,
     human,
     scare

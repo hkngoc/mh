@@ -76,16 +76,28 @@ AI.prototype.scoreForBombing = function(playerId, pos, grid, remainTime) {
   const id = myId == playerId ? enemyId : myId;
   const { [id]: { currentPosition: { col, row } } } = players;
   if (x == col && y == row) {
-    score.enemy = 1; // just for counting
+    score.enemy = 1;
   }
+
+  const {
+    [id]: { col: eCol, row: eRow },
+    [myId]: { col: eCol2, row: eRow2 }
+  } = dragonEggs;
 
   if (node.value == 2 && grid.wouldStopFlameAt(x, y, remainTime)) {
-    score.box = 1; // just for counting
+    score.box = 1;
+    // check box near enemy dragon
+    if ((x == eCol && Math.abs(y - eRow) == 1) || (y == eRow && Math.abs(x - eCol) == 1) || (Math.abs(y - eRow) == 1 && Math.abs(x - eCol) == 1)) {
+      score.box_near_enemy_egg = 1;
+    }
   }
 
-  const { [id]: { col: eCol, row: eRow } } = dragonEggs;
   if (x == eCol && y == eRow) {
-    score.enemy_egg = 1; // just for counting
+    score.enemy_egg = 1;
+  }
+
+  if (x == eCol2 && y == eRow2) {
+    score.my_egg = 1;
   }
 
   return score;
