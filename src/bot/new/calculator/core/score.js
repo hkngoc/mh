@@ -18,7 +18,7 @@ AI.prototype.scoreForSpoils = function(spoils) {
           // speed
           return 2.0;
         case 6:
-          return 0;
+          return 1;
         default:
           return 0.5;
       }
