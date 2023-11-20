@@ -6,7 +6,6 @@ import {
 
 import { cloneDeep } from 'lodash';
 
-// import Bot from './old';
 import BusStation from './new';
 
 
