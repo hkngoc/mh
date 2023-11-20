@@ -74,7 +74,7 @@ const Bot = ({ id }) => {
   }, [match]);
 
   const onConnected = useCallback(({ game_id, player_id }) => {
-    if (game_id === game && player_id === key) {
+    if (game_id === game && (player_id.includes(key) || key.includes(player_id))) {
       setJoined(true);
     }
   }, [
