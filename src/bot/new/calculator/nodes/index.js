@@ -5,8 +5,6 @@ import StopIfNeeded from './StopIfNeeded';
 import SyncData from './SyncData';
 import UpdateEnemy from './UpdateEnemy';
 import UpdateFlame from './UpdateFlame';
-import UpdateVirus from './UpdateVirus';
-import UpdateHuman from './UpdateHuman';
 import UpdateGrid from './UpdateGrid';
 import UpdateLastResult from './UpdateLastResult';
 
@@ -71,8 +69,6 @@ export {
 
   UpdateFlame,
   UpdateEnemy,
-  UpdateVirus,
-  UpdateHuman,
   UpdateGrid,
   UpdateLastResult,
 

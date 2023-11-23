@@ -27,10 +27,7 @@ First.prototype.buildTree = function() {
           new NODES.SyncData(this),
           new NODES.UpdateLastResult(this),
           new NODES.UpdateFlame(this),
-          // need implement guest path of virus/human more precision. Currently, ignore Hazard from virus/human
-          // new NODES.UpdateVirus(this),
-          // new NODES.UpdateHuman(this),
-          // need implement update enemy grid in future
+           // need implement update enemy grid in future
           new NODES.CalculateBombDelay(this),
           new NODES.CalculateEmpty(this),
           new NODES.UpdateEnemy(this),
