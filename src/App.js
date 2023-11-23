@@ -27,6 +27,8 @@ import AddBot from './pages/AddBot';
 
 import Counter from './pages/Counter';
 
+import { Live } from './components';
+
 const App = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [showSetting, setShowSetting] = useState(false);
@@ -49,6 +51,7 @@ const App = () => {
           <Nav className="me-auto">
             </Nav>
             <Nav className="gap-2 align-items-start flex-row">
+              <Live />
               <Button
                 variant="outline-success"
                 onClick={() => setShowAdd(true)}

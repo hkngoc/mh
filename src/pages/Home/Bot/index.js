@@ -25,6 +25,7 @@ import {
   selectBot,
   removeBot,
   cleanMap,
+  setJoined,
 } from '../../../features/bot/botSlice';
 
 import { Match } from '../../../bot';
@@ -35,19 +36,20 @@ const Bot = ({ id }) => {
   const dispatch = useDispatch();
 
   const [match, setMatch] = useState(null);
-  const [joined, setJoined] = useState(false);
   const [preview, setPreview] = useState(false);
 
   const playerInGame = useSelector(selectBot(id));
   const {
     game,
+    description,
     host: {
       host,
     },
     player: {
       name,
       key,
-    }
+    },
+    joined,
   } = playerInGame;
 
   useEffect(() => {
@@ -73,13 +75,42 @@ const Bot = ({ id }) => {
     }
   }, [match]);
 
+  const handleJoinGame = useCallback(() => {
+    if (match) {
+      match.joinGame();
+    }
+  }, [match]);
+
+  const handleDisconnect = useCallback(() => {
+    if (match) {
+      match.disconnect();
+      dispatch(setJoined({ id, joined: false }));
+    }
+
+    dispatch(cleanMap({ id }));
+  }, [
+    match,
+    id,
+    dispatch,
+  ]);
+
   const onConnected = useCallback(({ game_id, player_id }) => {
-    if (game_id === game && (player_id.includes(key) || key.includes(player_id))) {
-      setJoined(true);
+    if (game_id === game && (player_id?.includes(key) || key?.includes(player_id))) {
+      dispatch(setJoined({ id, joined: true }));
     }
   }, [
+    id,
     game,
     key,
+    dispatch,
+  ]);
+
+  const onDisconnected = useCallback((reason, description) => {
+    console.log("disconnect: ", reason);
+
+    handleDisconnect();
+  }, [
+    handleDisconnect,
   ]);
 
   useEffect(() => {
@@ -104,28 +135,16 @@ const Bot = ({ id }) => {
     onConnected,
   ]);
 
-  const handleJoinGame = useCallback(() => {
-    if (match) {
-      match.joinGame();
-    }
-  }, [match]);
-
-  const handleDisconnect = useCallback(() => {
-    if (match) {
-      match.disconnect();
-      setJoined(false);
-    }
-
-    dispatch(cleanMap({ id }));
+  useEffect(() => {
+    match?.registerDisconnect(onDisconnected);
   }, [
     match,
-    id,
-    dispatch,
-  ]);
+    onDisconnected,
+  ])
 
   const handleRemoveBot = useCallback(() => {
     if (match) {
-      setJoined(false);
+      dispatch(setJoined({ id, joined: false }));
       match.dispose();
     }
 
@@ -171,6 +190,7 @@ const Bot = ({ id }) => {
           <Row>
             <Col>
               <Card.Text>{`${host}`}</Card.Text>
+              <Card.Text>{`${description || ""}`}</Card.Text>
               <Card.Text title={key}>{`${name}`}</Card.Text>
             </Col>
             <Col className="align-self-center">

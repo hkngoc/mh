@@ -8,7 +8,6 @@ import { cloneDeep } from 'lodash';
 
 import BusStation from './new';
 
-
 const EV_JOIN_GAME = 'join game';
 const EV_TICKTACK = 'ticktack player';
 
@@ -40,14 +39,13 @@ class Match {
     this.socket = this.manager.socket("/");
   }
 
-
   private handleTicktackForAi(json: any) {
     // console.log("ai thinking here", json);
     this.bot.ticktack?.(cloneDeep({ ...json }));
   }
 
   private onCalculated(result: any) {
-    console.log("match receive result", result);
+    // console.log("match receive result", result);
     this.onWatch?.(result);
 
     // console.log(this.socket);
@@ -99,6 +97,10 @@ class Match {
 
   public unRegisterWatchAiResult() {
     this.onWatch = null;
+  }
+
+  public registerDisconnect(callback: (...args: any[]) => void) {
+    this.socket.on("disconnect", callback);
   }
 
   public registerJoinGame(callback: (...args: any[]) => void) {

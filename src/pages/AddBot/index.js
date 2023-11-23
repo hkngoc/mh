@@ -105,6 +105,13 @@ const AddBot = ({ onHide, ...rest }) => {
               {...register("game")}
             />
           </Form.Group>
+          <Form.Group controlId="game" className="mb-3">
+            <Form.Control
+              as="textarea"
+              placeholder={"description"}
+              {...register("description")}
+            />
+          </Form.Group>
           <Form.Group controlId="host" className="mb-3">
             <Form.Select {...register("host")}>
               {
