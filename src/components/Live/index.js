@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import {
   Button
@@ -14,6 +14,8 @@ import {
 } from '../../features/bot/botSlice';
 
 const Live = () => {
+  const [requested, setRequested] = useState(false);
+
   const bots = useSelector(selectBots);
 
   const live = useMemo(() => {
@@ -26,19 +28,28 @@ const Live = () => {
     request,
     release,
   } = useWakeLock({
-    onRequest: () => console.log('Screen Wake Lock: requested!'),
-    onError: () => console.log('An error happened 💥'),
-    onRelease: () => console.log('Screen Wake Lock: released!'),
+    onRequest: () => {
+      console.log('Screen Wake Lock: requested!');
+      setRequested(true);
+    },
+    onError: () => {
+      console.log('An error happened 💥');
+    },
+    onRelease: () => {
+      console.log('Screen Wake Lock: released!');
+      setRequested(false);
+    },
   });
 
   useEffect(() => {
     if (live) {
-      request?.();
+      !requested && request?.();
     } else {
-      release?.();
+      requested && release?.();
     }
   }, [
     live,
+    requested,
     request,
     release,
   ]);

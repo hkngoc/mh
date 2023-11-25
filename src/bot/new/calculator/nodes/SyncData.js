@@ -7,7 +7,7 @@ import Logger from 'js-logger';
 
 import { newChildObject } from '../../utils';
 import MyBaseNode from './MyBaseNode';
-import { CustomGrid as Grid } from '../core/helper';
+import Grid from '../core/Grid';
 
 const SyncData = function(ref) {
   MyBaseNode.apply(this, [ref]);

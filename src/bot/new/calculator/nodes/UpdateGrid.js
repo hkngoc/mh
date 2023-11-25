@@ -12,7 +12,8 @@ import Logger from 'js-logger';
 
 import { newChildObject } from '../../utils';
 import MyBaseNode from './MyBaseNode';
-import { Pos, Queue } from '../core/helper';
+// import { Pos, Queue } from '../core/ai/helper';
+import Queue from '../core/Queue';
 
 const UpdateGrid = function(ref) {
   MyBaseNode.apply(this, [ref]);
@@ -193,7 +194,7 @@ UpdateGrid.prototype.findSafePlace = function(playerId, pos, grid) {
 };
 
 UpdateGrid.prototype.canPlayerWalk = function(...params) {
-  return this.ref.canPlayerWalkByFlame(...params) && this.ref.canPlayerWalkBySarsCov(...params);
+  return this.ref.canPlayerWalkByFlame(...params);
   // return this.ref.canPlayerWalkByFlame(...params);
 };
 

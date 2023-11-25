@@ -41,7 +41,7 @@ FindCandidate.prototype.tick = function(tree) {
       const node = grid.getNodeAt(j, i);
 
       const { travelCost } = node;
-      const scare = this.ref.countingScareByRadar(node, grid);
+      const scare = [];
       node.scare = scare;
 
       // find safe place

@@ -1,9 +1,8 @@
+import AI from './ai';
+
 import _ from 'lodash';
 
-import AI from './ai';
-import {
-  getDirect
-} from './helper';
+import Pos from '../Pos';
 
 AI.prototype.checkPathCanWalk = function(positions) {
   const { map: { myId }, grid }= this;
@@ -27,17 +26,7 @@ AI.prototype.checkPathCanWalk = function(positions) {
       0,
       300,
       false
-    ) && this.canPlayerWalkBySarsCov(
-      myId,
-      grid.getNodeAt(node.x, node.y),
-      grid.getNodeAt(neighbor.x, neighbor.y),
-      grid,
-      travelCost,
-      0,
-      700,
-      false,
-      profit
-    )
+    );
     profit = merged;
     travelCost++;
 
@@ -68,14 +57,6 @@ AI.prototype.checkPathInDanger = function(positions) {
     }
   }
 
-  if (accept) {
-    const passive = this.playerPassiveNumber(myId);
-    const { humanTravel = [], virusTravel = []} = profit;
-    if (passive < humanTravel.length + virusTravel) {
-      accept = false;
-    }
-  }
-
   return accept;
 };
 
@@ -89,7 +70,7 @@ AI.prototype.tracePath = function(pos, grid) {
 
   while (node.parent) {
     const { parent } = node;
-    const direct = getDirect({ x: parent.x, y: parent.y }, { x: node.x, y: node.y });
+    const direct = Pos.getDirect({ x: parent.x, y: parent.y }, { x: node.x, y: node.y });
     directs = direct + directs;
     positions.splice(0, 0, {
       x: parent.x,

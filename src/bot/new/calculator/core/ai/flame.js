@@ -1,8 +1,10 @@
 import AI from './ai';
+
+import Pos from '../Pos';
+
 import {
-  Pos,
-  Direct
-} from './helper';
+  DIRECT
+} from '../constants';
 
 import _ from 'lodash';
 
@@ -12,10 +14,10 @@ AI.prototype.drawBombFlames = function(bomb, grid, fn, which) {
   const pos = new Pos(col, row);
 
   let directs = {};
-  directs[Direct.LEFT] = pos;
-  directs[Direct.RIGHT] = pos;
-  directs[Direct.UP] = pos;
-  directs[Direct.DOWN] = pos;
+  directs[DIRECT.LEFT] = pos;
+  directs[DIRECT.RIGHT] = pos;
+  directs[DIRECT.UP] = pos;
+  directs[DIRECT.DOWN] = pos;
 
   let flameSize = power;//boot bomb power
   // let score = 0;

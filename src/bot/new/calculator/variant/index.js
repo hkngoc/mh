@@ -1,5 +1,1 @@
-import First from './first';
-
-export {
-  First
-}
+export { default as First } from './first';

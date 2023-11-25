@@ -1,7 +1,6 @@
 import AI from './ai';
-import {
-  DirectOf,
-} from './helper';
+
+import { DIRECT_OF } from '../constants';
 
 import _ from 'lodash';
 
@@ -51,7 +50,7 @@ AI.prototype.getEnemyPlayer = function() {
 };
 
 AI.prototype.getDirectOf = function(direction) {
-  return DirectOf[direction];
+  return DIRECT_OF[direction];
 };
 
 AI.prototype.mergeProfit = function(left, right) {
