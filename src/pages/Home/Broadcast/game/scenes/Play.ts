@@ -358,7 +358,7 @@ export class Play extends Scene {
     // const mode = this.registry.get("mode");
     // const size =  mode === "training" ? 35 : 55;
 
-    const { positions } = result;
+    const { positions = [] } = result;
 
     for (let i = this.thinks.children.size - 1; i >= 0; i--) {
       const t = this.thinks.getChildren().at(i) as ThinkCell;
@@ -401,9 +401,9 @@ export class Play extends Scene {
   };
 
   destroy() {
-    console.log("scene destroy 1");
     this.unregister?.();
-    this.unregisterWatch?.();
+    this.unregisterWatch?.unsubscribe();
+
     this.tilemap = undefined;
   }
 };

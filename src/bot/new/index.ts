@@ -173,6 +173,12 @@ class BotManager {
 
       const unsubcrible = this.ticktackObserable?.pipe(
         // filter my event
+        map((event) => {
+          return {
+            ...event,
+            now: Date.now(),
+          }
+        }),
         filter((event) => {
           const { player_id } = event;
 
@@ -195,22 +201,32 @@ class BotManager {
                 return tag === TAG_START_MOVE;
               }
             }),
-            filter(([event, result]) => {
-              const { timestamp: timestampS } = result;
-              const { timestamp: timestampE } = event;
+            // filter(([event, result]) => {
+            //   const { timestamp: timestampS } = result;
+            //   const { timestamp: timestampE } = event;
 
-              return timestampE >= timestampS;
-            }),
+            //   return timestampE >= timestampS;
+            // }),
             first(),
             catchError(() => []),
           );
         }),
       ).subscribe((o) => {
         o.subscribe(([event, result]) => {
-          const { timestamp: timestampS } = result;
-          const { timestamp: timestampE } = event;
+          const {
+            timestamp: timestampS
+          } = result;
+          const {
+            // timestamp: timestampE,
+            now,
+          } = event;
 
-          const ping = timestampE - timestampS;
+          // const now = Date.now();
+          // start + diff + ping = end
+          // now + diff - ping = end
+
+          // const ping = timestampE - timestampS;
+          const ping = (now - timestampS) / 2;
 
           subscriber.next(ping);
         });
@@ -220,7 +236,7 @@ class BotManager {
       return () => {
         unsubcrible?.unsubscribe();
       }
-    });
+    }).pipe(share());
   }
 
   private setupCalculateObservable() {
@@ -259,6 +275,10 @@ class BotManager {
   }
 
   private onCalculated([ result, latestData ]: any) {
+    if (!result) {
+      return;
+    }
+
     // check result and latestData can working together
     this.resultListeners?.next({
       ...result,
@@ -267,9 +287,11 @@ class BotManager {
   }
 
   public registerResultListener(listener: (value: any) => void) {
-    return this.resultListeners?.subscribe({
-      next: listener,
-    });
+    return this.resultListeners?.subscribe(listener);
+  }
+
+  public registerPingResult(listener: (value: any) => void) {
+    return this.pingObservable?.subscribe(listener);
   }
 
   public dispose() {

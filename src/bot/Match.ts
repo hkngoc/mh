@@ -4,8 +4,6 @@ import {
   fromEvent,
 } from 'rxjs';
 
-import { cloneDeep } from 'lodash';
-
 import BotManager from './new';
 
 const EV_JOIN_GAME = 'join game';
@@ -20,12 +18,11 @@ class Match {
   private socket: Socket;
 
   private unregister?: any;
-  private onWatch?: any;
 
   private bot?: any;
 
   private busStation?: any;
-  private resultObserver?: Subscription;
+  private resultSubscription?: Subscription;
 
   constructor(host: string, game: string, player: string) {
     this.host = host;
@@ -39,15 +36,8 @@ class Match {
     this.socket = this.manager.socket("/");
   }
 
-  private handleTicktackForAi(json: any) {
-    // console.log("ai thinking here", json);
-    this.bot.ticktack?.(cloneDeep({ ...json }));
-  }
-
   private onCalculated(result: any) {
     // console.log("match receive result", result);
-    this.onWatch?.(result);
-
     // console.log(this.socket);
     if (!result) {
       return;
@@ -73,7 +63,6 @@ class Match {
 
     this.bot?.dispose();
     this.bot = null;
-    this.onWatch = null;
   }
 
   private registerAi() {
@@ -86,17 +75,15 @@ class Match {
       }
     }, ticktackObservable);
 
-    this.resultObserver = this.busStation?.registerResultListener(this.onCalculated.bind(this));
+    this.resultSubscription = this.busStation?.registerResultListener(this.onCalculated.bind(this));
   }
 
-  public registerWatchAiResult(callback: Function) {
-    this.onWatch = callback;
-
-    return this.unRegisterWatchAiResult;
+  public registerWatchAiResult(callback: any) {
+    return this.busStation?.registerResultListener(callback);
   }
 
-  public unRegisterWatchAiResult() {
-    this.onWatch = null;
+  public registerPingResult(callback: any) {
+    return this.busStation?.registerPingResult(callback);
   }
 
   public registerDisconnect(callback: (...args: any[]) => void) {
@@ -143,7 +130,7 @@ class Match {
     this.unregister = null;
 
     this.busStation?.dispose();
-    this.resultObserver?.unsubscribe();
+    this.resultSubscription?.unsubscribe();
 
     this.socket.off();
     this.socket.disconnect();

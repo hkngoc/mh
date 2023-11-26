@@ -35,6 +35,7 @@ import Broadcast from '../Broadcast';
 const Bot = ({ id }) => {
   const dispatch = useDispatch();
 
+  const [ping, setPing] = useState(null);
   const [match, setMatch] = useState(null);
   const [preview, setPreview] = useState(false);
 
@@ -56,6 +57,7 @@ const Bot = ({ id }) => {
     // just check working of typescript and prepare for InversifyJS DI
     // currently, we have no idea to setup concept for bot, socket connection, match... with DI inside each Bot component instance :((
     const match = new Match(host, game, key);
+
     setMatch(match);
 
     // return () => {
@@ -167,6 +169,23 @@ const Bot = ({ id }) => {
     setPreview((preview) => !preview);
   }, []);
 
+  useEffect(() => {
+    if (!match || !joined) {
+      return;
+    }
+
+    const unregister = match?.registerPingResult((ping) => {
+      setPing(ping);
+    });
+
+    return () => {
+      unregister?.unsubscribe();
+    }
+  }, [
+    match,
+    joined,
+  ]);
+
   return (
     <div className="d-grid gap-2 grid-bot-item align-items-start">
       <Card>
@@ -224,6 +243,11 @@ const Bot = ({ id }) => {
                   )
                 }
               </div>
+            </Col>
+          </Row>
+          <Row className="mt-3">
+            <Col>
+              <Card.Text className="text-end">{ping ? `${ping} ms` : ""}</Card.Text>
             </Col>
           </Row>
         </Card.Body>
