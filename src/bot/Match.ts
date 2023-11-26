@@ -6,7 +6,7 @@ import {
 
 import { cloneDeep } from 'lodash';
 
-import BusStation from './new';
+import BotManager from './new';
 
 const EV_JOIN_GAME = 'join game';
 const EV_TICKTACK = 'ticktack player';
@@ -79,7 +79,7 @@ class Match {
   private registerAi() {
     const ticktackObservable = fromEvent(this.socket, EV_TICKTACK);
 
-    this.busStation = new BusStation({
+    this.busStation = new BotManager({
       playerId: this.player,
       other: {
         rejectByStop: false // some other config. currenly, hardcode here
