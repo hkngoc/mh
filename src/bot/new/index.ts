@@ -1,10 +1,9 @@
 import {
   Observable,
   Subscription,
-  Subject,
+  BehaviorSubject,
 
   exhaustMap,
-  share,
   withLatestFrom,
   map,
   pairwise,
@@ -34,44 +33,28 @@ class BotManager {
   private config: any;
 
   private subcriptions?: Subscription;
-  private resultListeners?: Subject<any>;
 
   private ticktackObserable?: Observable<any>; 
 
-  private resultObservable?: Observable<any>;
+  private resultObservable?: BehaviorSubject<any>;
+  private pingObservable?: BehaviorSubject<any>; 
+  private positionObservable?: BehaviorSubject<any>;
+
   private calculateObservable?: Observable<any>;
-  private pingObservable?: Observable<any>;
-  private positionObservable?: Observable<any>;
 
   constructor(confg: any, observable?: Observable<any>) {
     this.config = confg;
 
     this.subcriptions = new Subscription();
-    this.resultListeners = new Subject<any>();
+    this.resultObservable = new BehaviorSubject(null);
 
-    this.ticktackObserable = observable?.pipe(share());
+    this.ticktackObserable = observable;
 
-    this.setupResultObservable();
     this.setupPositionObservable();
     this.setupPingObserable();
     this.setupCalculateObservable();
 
     this.setupListener();
-  }
-
-  private setupResultObservable() {
-    this.resultObservable = new Observable((subscriber) => {
-      // just for inital
-      subscriber.next(null);
-
-      const unsubcrible = this.resultListeners?.subscribe((result) => {
-        subscriber.next(result);
-      });
-
-      return () => {
-        unsubcrible?.unsubscribe();
-      }
-    });
   }
 
   private setupPositionObservable() {
@@ -88,7 +71,7 @@ class BotManager {
     const getMyPosition = (player: any) => {
       return get(player, "currentPosition");
     }
-  
+
     const isNewPosition = ([prev, curr]: any) => {
       const prevO = findMe(prev);
       const currO = findMe(curr);
@@ -105,34 +88,28 @@ class BotManager {
       return false;
     }
 
-    this.positionObservable = new Observable((subscriber) => {
-      subscriber.next(null);
+    this.positionObservable = new BehaviorSubject(null);
 
-      const unsubcrible = this.ticktackObserable?.pipe(
-        pairwise(),
-        filter(isNewPosition.bind(this)),
-        map(([_prev, curr]) => {
-          const {
-            tag,
-            timestamp,
-          } = curr;
+    const subcription = this.ticktackObserable?.pipe(
+      pairwise(),
+      filter(isNewPosition.bind(this)),
+      map(([_prev, curr]) => {
+        const {
+          tag,
+          timestamp,
+        } = curr;
 
-          const position = getMyPosition(findMe(curr))
+        const position = getMyPosition(findMe(curr))
 
-          return {
-            tag,
-            timestamp,
-            position,
-          }
-        })
-      ).subscribe((pos) => {
-        subscriber.next(pos);
-      });
+        return {
+          tag,
+          timestamp,
+          position,
+        }
+      })
+    ).subscribe(this.positionObservable?.next.bind(this.positionObservable));
 
-      return () => {
-        unsubcrible?.unsubscribe();  
-      }
-    });
+    this.subcriptions?.add(subcription);
   }
 
   private setupPingObserable() {
@@ -162,77 +139,72 @@ class BotManager {
       })
     );
 
-    this.pingObservable = new Observable((subscriber) => {
-      // just for inital
-      subscriber.next(null);
+    this.pingObservable = new BehaviorSubject(null);
 
-      const unsubcrible = this.ticktackObserable?.pipe(
-        // filter my event
-        map((event) => {
-          return {
-            ...event,
-            now: Date.now(),
-          }
-        }),
-        filter((event) => {
-          const { player_id } = event;
+    const subcription = this.ticktackObserable?.pipe(
+      // filter my event
+      map((event) => {
+        return {
+          ...event,
+          now: Date.now(),
+        }
+      }),
+      filter((event) => {
+        const { player_id } = event;
 
-          return matchKey(player_id);
-        }),
-        withLatestFrom(originResultObservable),
-        // window by filter resultObservable watch = false
-        window(originResultObservable),
-        map((win) => {
-          return win.pipe(
-            filter(([event, result]) => {
-              const { tag } = event;
-              const { directs } = result;
+        return matchKey(player_id);
+      }),
+      withLatestFrom(originResultObservable),
+      // window by filter resultObservable watch = false
+      window(originResultObservable),
+      map((win) => {
+        return win.pipe(
+          filter(([event, result]) => {
+            const { tag } = event;
+            const { directs } = result;
 
-              if (directs.startsWith(DIRECT_BOMB)) {
-                return tag === TAG_BOM_SETUP;
-              } if (directs.startsWith(DIRECT_STOP)) {
-                return tag === TAG_STOP_MOVE;
-              } else {
-                return tag === TAG_START_MOVE;
-              }
-            }),
-            // filter(([event, result]) => {
-            //   const { timestamp: timestampS } = result;
-            //   const { timestamp: timestampE } = event;
+            if (directs.startsWith(DIRECT_BOMB)) {
+              return tag === TAG_BOM_SETUP;
+            } if (directs.startsWith(DIRECT_STOP)) {
+              return tag === TAG_STOP_MOVE;
+            } else {
+              return tag === TAG_START_MOVE;
+            }
+          }),
+          // filter(([event, result]) => {
+          //   const { timestamp: timestampS } = result;
+          //   const { timestamp: timestampE } = event;
 
-            //   return timestampE >= timestampS;
-            // }),
-            first(),
-            catchError(() => []),
-          );
-        }),
-        mergeAll(),
-        map(([event, result]) => {
-          const {
-            timestamp: timestampS,
-          } = result;
-          const {
-            timestamp: timestampE,
-            now,
-          } = event;
-  
-          // start + diff + ping = end
-          // now + diff - ping = end
-  
-          const ping = (now - timestampS) / 2;
-          const diff = timestampE - (timestampS + now) / 2;
-  
-          return {
-            ping,
-            diff,
-          };
-        })
-      ).subscribe(subscriber.next.bind(subscriber));
+          //   return timestampE >= timestampS;
+          // }),
+          first(),
+          catchError(() => []),
+        );
+      }),
+      mergeAll(),
+      map(([event, result]) => {
+        const {
+          timestamp: timestampS,
+        } = result;
+        const {
+          timestamp: timestampE,
+          now,
+        } = event;
 
-      return () => {
-        unsubcrible?.unsubscribe();  
-      }
-    }).pipe(share());
+        // start + diff + ping = end
+        // now + diff - ping = end
+
+        const ping = (now - timestampS) / 2;
+        const diff = timestampE - (timestampS + now) / 2;
+
+        return {
+          ping,
+          diff,
+        };
+      })
+    ).subscribe(this.pingObservable?.next.bind(this.pingObservable));
+
+    this.subcriptions?.add(subcription);
   }
 
   private setupCalculateObservable() {
@@ -276,14 +248,14 @@ class BotManager {
     }
 
     // check result and latestData can working together
-    this.resultListeners?.next({
+    this.resultObservable?.next({
       ...result,
       timestamp: Date.now(),
     });
   }
 
   public registerResultListener(listener: (value: any) => void) {
-    return this.resultListeners?.subscribe(listener);
+    return this.resultObservable?.subscribe(listener);
   }
 
   public registerPingResult(listener: (value: any) => void) {
@@ -291,7 +263,6 @@ class BotManager {
   }
 
   public dispose() {
-    this.resultListeners?.unsubscribe();
     this.subcriptions?.unsubscribe();
   }
 }

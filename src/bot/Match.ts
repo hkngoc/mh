@@ -1,7 +1,9 @@
 import { Manager, Socket } from 'socket.io-client';
 import {
+  Observable,
   Subscription,
   fromEvent,
+  share,
 } from 'rxjs';
 
 import BotManager from './new';
@@ -23,6 +25,7 @@ class Match {
 
   private busStation?: any;
   private resultSubscription?: Subscription;
+  private ticktackObservable?: Observable<any>;
 
   constructor(host: string, game: string, player: string) {
     this.host = host;
@@ -34,6 +37,7 @@ class Match {
     });
 
     this.socket = this.manager.socket("/");
+    this.ticktackObservable = fromEvent(this.socket, EV_TICKTACK).pipe(share());
   }
 
   private onCalculated(result: any) {
@@ -66,15 +70,15 @@ class Match {
   }
 
   private registerAi() {
-    const ticktackObservable = fromEvent(this.socket, EV_TICKTACK);
-
+    this.busStation?.dispose();
     this.busStation = new BotManager({
       playerId: this.player,
       other: {
         rejectByStop: false // some other config. currenly, hardcode here
       }
-    }, ticktackObservable);
+    }, this.ticktackObservable);
 
+    this.resultSubscription?.unsubscribe();
     this.resultSubscription = this.busStation?.registerResultListener(this.onCalculated.bind(this));
   }
 
