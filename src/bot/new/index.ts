@@ -11,6 +11,7 @@ import {
   filter,
   window,
   first,
+  mergeAll,
   catchError,
 } from 'rxjs';
 
@@ -54,12 +55,6 @@ class BotManager {
     this.setupPositionObservable();
     this.setupPingObserable();
     this.setupCalculateObservable();
-
-    // collect direct after emit result
-    // from positionObservable
-    // pipe 
-    // window by filter resultObservable watch = false
-    ///
 
     this.setupListener();
   }
@@ -211,30 +206,28 @@ class BotManager {
             catchError(() => []),
           );
         }),
-      ).subscribe((o) => {
-        o.subscribe(([event, result]) => {
-          const {
-            timestamp: timestampS
-          } = result;
-          const {
-            // timestamp: timestampE,
-            now,
-          } = event;
+        mergeAll(),
+      ).subscribe(([event, result]) => {
+        const {
+          timestamp: timestampS
+        } = result;
+        const {
+          // timestamp: timestampE,
+          now,
+        } = event;
 
-          // const now = Date.now();
-          // start + diff + ping = end
-          // now + diff - ping = end
+        // const now = Date.now();
+        // start + diff + ping = end
+        // now + diff - ping = end
 
-          // const ping = timestampE - timestampS;
-          const ping = (now - timestampS) / 2;
+        // const ping = timestampE - timestampS;
+        const ping = (now - timestampS) / 2;
 
-          subscriber.next(ping);
-        });
+        subscriber.next(ping);
       });
 
-
       return () => {
-        unsubcrible?.unsubscribe();
+        unsubcrible?.unsubscribe();  
       }
     }).pipe(share());
   }
