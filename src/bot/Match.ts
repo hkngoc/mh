@@ -19,11 +19,7 @@ class Match {
   private manager: Manager;
   private socket: Socket;
 
-  private unregister?: any;
-
-  private bot?: any;
-
-  private busStation?: any;
+  private botManager?: any;
   private resultSubscription?: Subscription;
   private ticktackObservable?: Observable<any>;
 
@@ -61,17 +57,11 @@ class Match {
 
   public disconnect() {
     this.socket.disconnect();
-
-    this.unregister?.();
-    this.unregister = null;
-
-    this.bot?.dispose();
-    this.bot = null;
   }
 
   private registerAi() {
-    this.busStation?.dispose();
-    this.busStation = new BotManager({
+    this.botManager?.dispose();
+    this.botManager = new BotManager({
       playerId: this.player,
       other: {
         rejectByStop: false // some other config. currenly, hardcode here
@@ -79,15 +69,15 @@ class Match {
     }, this.ticktackObservable);
 
     this.resultSubscription?.unsubscribe();
-    this.resultSubscription = this.busStation?.registerResultListener(this.onCalculated.bind(this));
+    this.resultSubscription = this.botManager?.registerResultListener(this.onCalculated.bind(this));
   }
 
   public registerWatchAiResult(callback: any) {
-    return this.busStation?.registerResultListener(callback);
+    return this.botManager?.registerResultListener(callback);
   }
 
   public registerPingResult(callback: any) {
-    return this.busStation?.registerPingResult(callback);
+    return this.botManager?.registerPingResult(callback);
   }
 
   public registerDisconnect(callback: (...args: any[]) => void) {
@@ -130,10 +120,7 @@ class Match {
   }
 
   public dispose() {
-    this.unregister?.();
-    this.unregister = null;
-
-    this.busStation?.dispose();
+    this.botManager?.dispose();
     this.resultSubscription?.unsubscribe();
 
     this.socket.off();
