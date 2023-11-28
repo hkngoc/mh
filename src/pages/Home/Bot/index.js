@@ -174,7 +174,12 @@ const Bot = ({ id }) => {
       return;
     }
 
-    const unregister = match?.registerPingResult((ping) => {
+    const unregister = match?.registerPingResult((value) => {
+      if (!value) {
+        return;
+      }
+
+      const { ping } = value;
       setPing(ping);
     });
 

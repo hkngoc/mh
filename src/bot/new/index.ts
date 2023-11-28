@@ -207,24 +207,27 @@ class BotManager {
           );
         }),
         mergeAll(),
-      ).subscribe(([event, result]) => {
-        const {
-          timestamp: timestampS
-        } = result;
-        const {
-          // timestamp: timestampE,
-          now,
-        } = event;
-
-        // const now = Date.now();
-        // start + diff + ping = end
-        // now + diff - ping = end
-
-        // const ping = timestampE - timestampS;
-        const ping = (now - timestampS) / 2;
-
-        subscriber.next(ping);
-      });
+        map(([event, result]) => {
+          const {
+            timestamp: timestampS,
+          } = result;
+          const {
+            timestamp: timestampE,
+            now,
+          } = event;
+  
+          // start + diff + ping = end
+          // now + diff - ping = end
+  
+          const ping = (now - timestampS) / 2;
+          const diff = timestampE - (timestampS + now) / 2;
+  
+          return {
+            ping,
+            diff,
+          };
+        })
+      ).subscribe(subscriber.next.bind(subscriber));
 
       return () => {
         unsubcrible?.unsubscribe();  
