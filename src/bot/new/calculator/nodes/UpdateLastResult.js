@@ -34,6 +34,13 @@ UpdateLastResult.prototype.tick = function(tree) {
   const { id, currentPosition: { col, row } } = player;
 
   const index = _.findLastIndex(positions, pos => pos.visited);
+
+  if (index >= positions.length - 1) {
+    this.ref.lastResult = null;
+
+    return SUCCESS;
+  }
+
   const current = positions[index];
   const next = positions[index + 1];
 

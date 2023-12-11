@@ -12,12 +12,14 @@ import {
   first,
   mergeAll,
   catchError,
+  scan,
 } from 'rxjs';
 
 import {
   cloneDeep,
   get,
   find,
+  findLastIndex,
 } from 'lodash';
 
 import calculator from './calculator';
@@ -39,6 +41,7 @@ class BotManager {
   private resultObservable?: BehaviorSubject<any>;
   private pingObservable?: BehaviorSubject<any>; 
   private positionObservable?: BehaviorSubject<any>;
+  private pathObservable?: BehaviorSubject<any>;
 
   private calculateObservable?: Observable<any>;
 
@@ -51,7 +54,9 @@ class BotManager {
     this.ticktackObserable = observable;
 
     this.setupPositionObservable();
-    this.setupPingObserable();
+    this.setupPingObservable();
+    this.setupPathObservable();
+
     this.setupCalculateObservable();
 
     this.setupListener();
@@ -112,7 +117,7 @@ class BotManager {
     this.subcriptions?.add(subcription);
   }
 
-  private setupPingObserable() {
+  private setupPingObservable() {
     const matchKey = (id = "") =>  {
       const { playerId } = this.config;
   
@@ -207,10 +212,82 @@ class BotManager {
     this.subcriptions?.add(subcription);
   }
 
+  private setupPathObservable() {
+    if (!this.resultObservable) {
+      return;
+    }
+
+    const originResultObservable = this.resultObservable.pipe(
+      filter((result) => {
+        if (!result) {
+          return false;
+        }
+
+        const { watch, directs } = result;
+
+        if (!watch && directs) {
+          return true;
+        }
+
+        return false;
+      })
+    );
+
+    this.pathObservable = new BehaviorSubject(null);
+
+    const subcription = this.positionObservable?.pipe(
+      window(originResultObservable),
+      map((win) => {
+        return win
+          .pipe(
+            withLatestFrom(originResultObservable),
+            scan((acc, [pos, seed]) => {
+              const result = acc === null ? seed : acc;
+
+              const {
+                timestamp,
+                position: { col, row },
+              } = pos;
+
+              const { positions } = result;
+
+              const index = findLastIndex(positions, (pos: any) => pos.visited);
+
+              if (index >= positions.length - 1) {
+                return result;
+              }
+
+              // const current = positions[index];
+              const next = positions[index + 1];
+
+              if (next.x === col && next.y === row) {
+                positions[index + 1].visited = true;
+                positions[index + 1].timestamp = timestamp;
+
+                return {
+                  ...result,
+                  positions,
+                };
+              }
+
+              return result;
+            }, null)
+          );
+      }),
+      mergeAll(),
+    ).subscribe(this.pathObservable?.next.bind(this.pathObservable));
+
+    this.subcriptions?.add(subcription);
+  }
+
   private setupCalculateObservable() {
     if (!this.resultObservable) {
       return;
     }
+
+    // if (!this.pathObservable) {
+    //   return;
+    // }
 
     this.calculateObservable = this.ticktackObserable
       ?.pipe(
@@ -219,6 +296,7 @@ class BotManager {
           { config: this.config }
         ]),
         withLatestFrom(this.resultObservable),
+        // withLatestFrom(this.pathObservable),
         exhaustMap(calculator)
       );
   }

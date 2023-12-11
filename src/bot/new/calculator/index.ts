@@ -2,18 +2,30 @@ import {
   First as AI
 } from './variant';
 
+import Logger from 'js-logger';
+
+import {
+  flatMapDeep,
+} from 'lodash';
+
 // function timeout(ms: number) {
 //   return new Promise(resolve => setTimeout(resolve, ms));
 // }
 
-const calculate = async ([[state, other], lastResult]: any, index: number) => {
+const calculate = async (args: any, index: number) => {
+  
+  const [state, other, lastResult] = flatMapDeep(args);
   // console.log("start calculate", state, config, index);
   // await timeout(1000);
 
   // return `done here ${index}`;
-  const { config } = other;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // Logger.useDefaults();
+  // Logger.setLevel(Logger.TRACE);
+
+  const { config } = other as any;
   const result = await new Promise((resolve) => {
-    let ai = new AI(state, config, lastResult)
+    let ai = new AI(state, config, lastResult);
     // @ts-ignore
     const r = ai.tick();
     // @ts-ignore
