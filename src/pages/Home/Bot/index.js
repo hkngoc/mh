@@ -22,8 +22,13 @@ import {
 } from 'react-bootstrap-icons';
 
 import {
+  EditText,
+} from 'react-edit-text';
+
+import {
   selectBot,
   removeBot,
+  updateBot,
   cleanMap,
   setJoined,
 } from '../../../features/bot/botSlice';
@@ -191,12 +196,29 @@ const Bot = ({ id }) => {
     joined,
   ]);
 
+  const onChangeGame = useCallback(({ value }) => {
+    dispatch(updateBot({ id, game: value }));
+  }, [
+    id,
+  ]);
+
   return (
     <div className="d-grid gap-2 grid-bot-item align-items-start">
       <Card>
         <Card.Body>
           <Card.Title className="d-flex align-items-center justify-content-between">
-            <span className="text-nowrap text-truncate">{game}</span>
+            <div
+              className="flex-grow-1"
+              type="button"
+            >
+              <EditText
+                name="game"
+                defaultValue={game}
+                className="flex-1"
+                inputClassName="form-control"
+                onSave={onChangeGame}
+            />
+            </div>
             <Button
               variant="outline-secondary"
               onClick={togglePreview}

@@ -22,6 +22,18 @@ export const botSlice = createSlice({
     removeBot: (state, action) => {
       state.bots = state.bots.filter(b => b.id !== action.payload);
     },
+    updateBot: (state, action) => {
+      const { id, ...rest } = action.payload;
+
+      const index = state.bots.findIndex(b => b.id === id);
+
+      if (index >= 0) {
+        state.bots[index] = {
+          ...state.bots[index],
+          ...rest,
+        }
+      }
+    },
     saveMap: (state, action) => {
       const { id, map } = action.payload;
 
@@ -55,6 +67,7 @@ export const botSlice = createSlice({
 export const {
   addBot,
   removeBot,
+  updateBot,
   saveMap,
   cleanMap,
   setJoined,
