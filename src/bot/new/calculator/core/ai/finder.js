@@ -137,9 +137,24 @@ AI.prototype.conditionBombFn = function(node, tpc, remain) {
     return false;
   }
 
-  const { box, enemy, my_egg, enemy_egg, box_near_enemy_egg, safe } = bombProfit;
+  const {
+    box,
+    enemy,
+    my_egg,
+    enemy_egg,
+    box_near_enemy_egg,
+    enemyScore,
+    safe,
+  } = bombProfit;
 
-  const hasBenefit = travelCost >= 0 && safe == true && (this.countingScore({ box, enemy, my_egg, enemy_egg, box_near_enemy_egg }) > 0);
+  const hasBenefit = travelCost >= 0 && safe == true && (this.countingScore({
+    box,
+    enemy,
+    my_egg,
+    enemy_egg,
+    box_near_enemy_egg,
+    enemyScore,
+  }) > 0);
 
   if (!hasBenefit) {
     return false;

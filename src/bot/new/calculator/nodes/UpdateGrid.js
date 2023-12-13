@@ -149,10 +149,11 @@ UpdateGrid.prototype.findSafePlace = function(playerId, pos, grid) {
     const node = openList.dequeue();
     node.safeClosed = true;
 
+    const safeTravelCost = node.safeTravelCost;
     const nextTravelCost = node.safeTravelCost + 1;
     if (this.isSafePlace(node, playerId)) {
-      const fasterEnemy = this.ref.fasterEnemy(node, nextTravelCost, preCost);
-      const faster = this.ref.fasterEnemy(node, nextTravelCost, 0);
+      const fasterEnemy = this.ref.fasterEnemy(node, safeTravelCost, preCost);
+      const faster = this.ref.fasterEnemy(node, safeTravelCost, 0);
 
       if (faster) {
         faster0++;

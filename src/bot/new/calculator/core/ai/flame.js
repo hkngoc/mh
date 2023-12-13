@@ -66,7 +66,7 @@ AI.prototype.reverseFlameFunction = function(playerId, pos, grid, remainTime, in
 };
 
 AI.prototype.scoreForBombing = function(playerId, pos, grid, remainTime) {
-  const playerNumber = this.getPlayerNumber(playerId);
+  // const playerNumber = this.getPlayerNumber(playerId);
   const score = {};
 
   const { x, y } = pos;
@@ -76,7 +76,14 @@ AI.prototype.scoreForBombing = function(playerId, pos, grid, remainTime) {
   const { myId, enemyId, map_info: { players, dragonEggs } } = this.map;
 
   const id = myId == playerId ? enemyId : myId;
-  const { [id]: { currentPosition: { col, row } } } = players;
+  const {
+    [id]: {
+      currentPosition: { col, row },
+      // enemy score here
+      score: enemyScore,
+    }
+  } = players;
+
   if (x == col && y == row) {
     score.enemy = 1;
   }
@@ -96,6 +103,7 @@ AI.prototype.scoreForBombing = function(playerId, pos, grid, remainTime) {
 
   if (x == eCol && y == eRow) {
     score.enemy_egg = 1;
+    score.enemyScore = enemyScore;
   }
 
   if (x == eCol2 && y == eRow2) {
