@@ -197,10 +197,6 @@ AI.prototype.scoreFn = function(node, scare = 0) {
   } = bombProfit;
   const { gifts = [], spoils = [], virus = [], human = [] } = scoreProfit;
 
-  if (enemy > 0) {
-    console.log("node", node);
-  }
-
   return this.countingScore({
     gifts,
     spoils,
