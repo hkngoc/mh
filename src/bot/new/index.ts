@@ -144,7 +144,7 @@ class BotManager {
       })
     );
 
-    this.pingObservable = new BehaviorSubject(null);
+    this.pingObservable = new BehaviorSubject({});
 
     const subcription = this.ticktackObserable?.pipe(
       // filter my event
@@ -289,6 +289,10 @@ class BotManager {
     //   return;
     // }
 
+    if (!this.pingObservable) {
+      return;
+    }
+
     this.calculateObservable = this.ticktackObserable
       ?.pipe(
         map((state) => [
@@ -297,6 +301,7 @@ class BotManager {
         ]),
         withLatestFrom(this.resultObservable),
         // withLatestFrom(this.pathObservable),
+        withLatestFrom(this.pingObservable),
         exhaustMap(calculator)
       );
   }

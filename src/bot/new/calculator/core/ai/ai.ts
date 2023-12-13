@@ -11,8 +11,9 @@ class AI {
   protected config;
   protected blackboard;
   protected lastResult;
+  protected pingObject;
 
-  constructor(map: any, config: any, lastResult: any) {
+  constructor(map: any, config: any, lastResult: any, ping: any) {
     const tree = new BehaviorTree(null, {
       title: 'BTs of iVengers'
     });
@@ -25,6 +26,7 @@ class AI {
     this.config     = config;
     this.blackboard = blackboard;
     this.lastResult = lastResult;
+    this.pingObject = ping;
   }
 
   public buildTree() {

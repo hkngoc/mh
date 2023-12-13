@@ -40,7 +40,7 @@ TargetSuitableWithBomb.prototype.tick = function(tree) {
   const { directs: rDirects } = lastResult;
   const { directs, positions } = this.ref.tracePath(position, grid);
 
-  if (!rDirects.endsWith(directs) && !this.ref.checkPathCanWalk(positions)) {
+  if (!rDirects.endsWith(directs) || !this.ref.checkPathCanWalk(positions)) {
     // not same path
     Logger.info('target remove 2');
     blackboard.set('rejectTarget', true, true);

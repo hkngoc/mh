@@ -5,7 +5,7 @@ import _ from 'lodash';
 import Pos from '../Pos';
 
 AI.prototype.checkPathCanWalk = function(positions) {
-  const { map: { myId }, grid }= this;
+  const { map: { myId }, grid } = this;
 
   const index = _.findLastIndex(positions, p => p.visited == true);
 
@@ -25,7 +25,9 @@ AI.prototype.checkPathCanWalk = function(positions) {
       travelCost,
       0,
       300,
-      false
+      false,
+      [],
+      false,
     );
     profit = merged;
     travelCost++;

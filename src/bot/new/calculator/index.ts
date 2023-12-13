@@ -14,7 +14,7 @@ import {
 
 const calculate = async (args: any, index: number) => {
   
-  const [state, other, lastResult] = flatMapDeep(args);
+  const [state, other, lastResult, ping] = flatMapDeep(args);
   // console.log("start calculate", state, config, index);
   // await timeout(1000);
 
@@ -25,7 +25,7 @@ const calculate = async (args: any, index: number) => {
 
   const { config } = other as any;
   const result = await new Promise((resolve) => {
-    let ai = new AI(state, config, lastResult);
+    let ai = new AI(state, config, lastResult, ping);
     // @ts-ignore
     const r = ai.tick();
     // @ts-ignore

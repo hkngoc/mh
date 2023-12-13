@@ -199,6 +199,7 @@ const Bot = ({ id }) => {
   const onChangeGame = useCallback(({ value }) => {
     dispatch(updateBot({ id, game: value }));
   }, [
+    dispatch,
     id,
   ]);
 
@@ -214,9 +215,9 @@ const Bot = ({ id }) => {
               <EditText
                 name="game"
                 defaultValue={game}
-                className="flex-1"
-                inputClassName="form-control"
+                inputClassName={`form-control`}
                 onSave={onChangeGame}
+                readonly={joined}
             />
             </div>
             <Button

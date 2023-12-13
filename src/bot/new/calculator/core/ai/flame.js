@@ -113,22 +113,66 @@ AI.prototype.scoreForBombing = function(playerId, pos, grid, remainTime) {
   return score;
 };
 
-AI.prototype.acceptFlame = function(remain, cost, preCost, tpc, offset) {
-  const travelTime = tpc * (cost + preCost);
+AI.prototype.acceptFlame = function(remain, cost, preCost, tpc, offset, ping) {
+  const distance = cost + preCost;
+
+  const previousCellTravelTime = tpc * ((distance - 1) || 0);
+  const nextCellTravelTime = tpc * (distance + 1);
+  const travelTime = tpc * distance;
 
   // need so much more thinking about that formula about range time of flame effect
   // currenly, I approve that with:
   // flame time = 400ms
   // offset = 200
 
-  if ((travelTime - tpc/2 > remain + 400 + offset * 1.5) || (travelTime + tpc/2 < remain - offset)) {
+  // -------------------remain-----------remain+400---------------
+  //------------------xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx------------
+
+  /**
+   * flame fps = 15
+   * 1 frame = 66.7
+   * flame animation ~ 6 frame
+   * offset 2 frame = 120
+   * safe = offset + ping
+   * previous > remain + flametime 
+   * next < remain
+   */
+
+  const flametime = 400;
+  const offset1 = 120;
+  const offsetSafe = offset1 + ping;
+
+  // if ((travelTime - tpc/2 > remain + 400 + offset * 1.5) || (travelTime + tpc/2 < remain - offset)) {
+  if ((previousCellTravelTime > remain + flametime + offsetSafe) || (nextCellTravelTime < remain - offsetSafe)) {
     return true;
   } else {
     return false;
   }
 };
 
-AI.prototype.canPlayerWalkByFlame = function(playerId, node, neighbor, grid, cost, preCost = 0, offset = 300, includeTemp = true) {
+AI.prototype.isPathInLastResult = function(node, neighbor) {
+  const { lastResult } = this;
+
+  if (!lastResult) {
+    return false;
+  }
+
+  const { positions } = lastResult;
+
+  const index1 = _.findLastIndex(positions, p => p.x == node.x  && p.y == node.y);
+  const index2 = _.findLastIndex(positions, p => p.x == neighbor.x  && p.y == neighbor.y);
+
+  if (index1 >= 0 && index2 >= 0 && Math.abs(index1 - index2) == 1)  {
+    return true;
+  }
+
+  return false;
+};
+
+AI.prototype.canPlayerWalkByFlame = function(playerId, node, neighbor, grid, cost, preCost = 0, offset = 300, includeTemp = true, _1, usePing = false) {
+  const { pingObject: { ping = 0} = {} } = this;
+  const offsetPing = usePing && !this.isPathInLastResult(node, neighbor) ? ping : 0;
+
   const tpc = this.timeToCrossACell(playerId);
   const travelTime = tpc * cost;
 
@@ -146,7 +190,7 @@ AI.prototype.canPlayerWalkByFlame = function(playerId, node, neighbor, grid, cos
   for (const flame of remainTime) {
     const { remain, preCost } = flame;
 
-    const accept = this.acceptFlame(remain, cost, preCost, tpc, offset);
+    const accept = this.acceptFlame(remain, cost, preCost, tpc, offset, offsetPing);
 
     if (!accept) {
       safe = false;
