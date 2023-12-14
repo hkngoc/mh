@@ -275,7 +275,7 @@ const Bot = ({ id }) => {
           </Row>
           <Row className="mt-3">
             <Col>
-              <Card.Text className="text-end">{ping ? `${ping} ms` : ""}</Card.Text>
+              <Card.Text className="text-end">{ping ? `${ping} ms` : "* ms"}</Card.Text>
             </Col>
           </Row>
         </Card.Body>

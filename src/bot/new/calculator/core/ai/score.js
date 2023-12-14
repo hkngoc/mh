@@ -61,7 +61,12 @@ AI.prototype.scoreFor = function(which, { near, enemyScore } = {}) {
 AI.prototype.scoreForWalk = function(playerId, node, neighbor, grid, travelCost, offset = 700, scoreProfit = {}) {
   const { map_info: { gifts, spoils } } = this.map;
 
-  const { x, y, virusTravel = [], humanTravel = [] } = neighbor;
+  const {
+    x,
+    y,
+    // virusTravel = [],
+    // humanTravel = [],
+  } = neighbor;
   const score = {};
 
   for (const spoil of spoils) {
@@ -77,38 +82,44 @@ AI.prototype.scoreForWalk = function(playerId, node, neighbor, grid, travelCost,
     }
   }
 
-  const tpc = this.timeToCrossACell(playerId);
-  const travelTime = tpc * travelCost;
-  const left = travelTime - tpc/2;
-  const right = travelTime + tpc/2;
+  const inLastPath = this.isPathInLastResult(node, neighbor);
 
-  const vtpc = this.timeToCrossACell('virus');
-  for (const v of virusTravel) {
-    const { index, step, main = false } = v;
-
-    const vTravelTime = step * vtpc;
-    const vLeft       = vTravelTime - vtpc/2 - offset;
-    const vRight      = vTravelTime + vtpc/2 + offset
-
-    if ((vLeft < left && left < vRight) || (vLeft < right && right < vRight)) {
-      score['virus'] = [ ...score['virus'] || [], v ];
-    }
+  if (inLastPath) {
+    score['inLastPath'] = [1];
   }
 
-  const htpc = this.timeToCrossACell('human');
+  // const tpc = this.timeToCrossACell(playerId);
+  // const travelTime = tpc * travelCost;
+  // const left = travelTime - tpc/2;
+  // const right = travelTime + tpc/2;
 
-  let human = 0;
-  for (const h of humanTravel) {
-    const { step, curedRemainTime = 0, main = false } = h;
+  // const vtpc = this.timeToCrossACell('virus');
+  // for (const v of virusTravel) {
+  //   const { index, step, main = false } = v;
 
-    const hTravelTime = curedRemainTime + step * htpc;
-    const hLeft       = hTravelTime - htpc/2 - offset;
-    const hRight      = hTravelTime + htpc/2 + offset;
+  //   const vTravelTime = step * vtpc;
+  //   const vLeft       = vTravelTime - vtpc/2 - offset;
+  //   const vRight      = vTravelTime + vtpc/2 + offset
 
-    if ((hLeft < left && left < hRight) || (hLeft < right && right < hRight)) {
-      score['human'] = [ ...score['human'] || [], h ];
-    }
-  }
+  //   if ((vLeft < left && left < vRight) || (vLeft < right && right < vRight)) {
+  //     score['virus'] = [ ...score['virus'] || [], v ];
+  //   }
+  // }
+
+  // const htpc = this.timeToCrossACell('human');
+
+  // let human = 0;
+  // for (const h of humanTravel) {
+  //   const { step, curedRemainTime = 0, main = false } = h;
+
+  //   const hTravelTime = curedRemainTime + step * htpc;
+  //   const hLeft       = hTravelTime - htpc/2 - offset;
+  //   const hRight      = hTravelTime + htpc/2 + offset;
+
+  //   if ((hLeft < left && left < hRight) || (hLeft < right && right < hRight)) {
+  //     score['human'] = [ ...score['human'] || [], h ];
+  //   }
+  // }
 
   // const { scoreProfit = {} } = node;
   return {

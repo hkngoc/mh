@@ -208,12 +208,13 @@ UpdateGrid.prototype.isSafePlace = function(node, playerId) {
 
 UpdateGrid.prototype.getProfitAdder = function(bomb, items, safer) {
   const { box = 0, enemy = 0, safe } = bomb;
-  const { gifts = [], spoils = [] } = items;
+  const { gifts = [], spoils = [], inLastPath = [] } = items;
 
   let score = 0;
 
   score = score + gifts.length;
   score = score + _.sumBy(spoils, s => s == 5 ? 2 : 1);
+  score = score + inLastPath.length / 2;
   score = score + safer;
 
   return score / 10;
